@@ -26,7 +26,7 @@ arrow-schema = "59"
 #     Firefox uses for legacy/unlabelled text.
 #   - encoding_rs (Apache-2.0/MIT, Mozilla): the WHATWG Encoding Standard codec
 #     library Firefox uses for decode/encode of every web-platform encoding.
-chardetng = "0.1"
+chardetng = "1.0"
 encoding_rs = "0.8"
 
 [profile.release]

@@ -51,13 +51,15 @@ fn detect_encoding(bytes: &[u8]) -> &'static Encoding {
     if let Some((enc, _bom_len)) = Encoding::for_bom(bytes) {
         return enc;
     }
-    let mut detector = chardetng::EncodingDetector::new();
+    // `Allow` keeps ISO-2022-JP a possible guess, matching the pre-1.0 default
+    // (we consume arbitrary data, not script-running web content).
+    let mut detector = chardetng::EncodingDetector::new(chardetng::Iso2022JpDetection::Allow);
     // `true` = we have fed the detector the whole document (no more bytes
     // coming), which lets it use end-of-input signals.
     detector.feed(bytes, true);
-    // No top-level domain hint, and don't allow UTF-8 to win purely on the
-    // absence of evidence (`allow_utf8 = true` lets valid UTF-8 be reported).
-    detector.guess(None, true)
+    // No top-level domain hint; `Utf8Detection::Allow` lets valid UTF-8 be
+    // reported (the chardetng 1.0 successor to the old `allow_utf8 = true`).
+    detector.guess(None, chardetng::Utf8Detection::Allow)
 }
 
 /// A confidence proxy in `[0, 1]` for reading `bytes` as the detected encoding.
