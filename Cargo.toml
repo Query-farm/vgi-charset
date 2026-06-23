@@ -16,9 +16,9 @@ repository = "https://github.com/Query-farm/vgi-charset"
 # single arrow/vgi-rpc resolves.
 vgi = "0.6.0"
 vgi-rpc = { version = "0.4.0", default-features = false, features = ["macros", "http"] }
-arrow-array = "58"
-arrow-buffer = "58"
-arrow-schema = "58"
+arrow-array = "59"
+arrow-buffer = "59"
+arrow-schema = "59"
 
 # Character-encoding detection + transcoding. Both are pure Rust, no native
 # deps, and MSRV-friendly (build clean on Rust 1.86):
