@@ -1,0 +1,33 @@
+[workspace]
+resolver = "2"
+members = ["crates/charset-worker"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.86"
+license = "MIT"
+authors = ["Query Farm LLC <hello@query.farm>"]
+repository = "https://github.com/Query-farm/vgi-charset"
+
+[workspace.dependencies]
+# VGI Rust SDK (worker side), published on crates.io. Pulls in vgi-rpc 0.2 and
+# arrow 58 transitively; keep arrow/vgi-rpc here in lockstep with vgi's pins so a
+# single arrow/vgi-rpc resolves.
+vgi = "0.5.0"
+vgi-rpc = { version = "0.2.0", default-features = false, features = ["macros", "http"] }
+arrow-array = "58"
+arrow-buffer = "58"
+arrow-schema = "58"
+
+# Character-encoding detection + transcoding. Both are pure Rust, no native
+# deps, and MSRV-friendly (build clean on Rust 1.86):
+#   - chardetng (Apache-2.0/MIT, Mozilla): the encoding-detection heuristic
+#     Firefox uses for legacy/unlabelled text.
+#   - encoding_rs (Apache-2.0/MIT, Mozilla): the WHATWG Encoding Standard codec
+#     library Firefox uses for decode/encode of every web-platform encoding.
+chardetng = "0.1"
+encoding_rs = "0.8"
+
+[profile.release]
+opt-level = 2

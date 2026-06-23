@@ -1,0 +1,101 @@
+# name: test/sql/detect.test
+# group: [vgi_charset]
+#
+# Detection scalars over BLOB literals: detect_encoding, detect_confidence,
+# is_valid_utf8. Bytes are supplied as '\x..'::BLOB so the inputs are exact and
+# the assertions deterministic.
+
+require-env VGI_CHARSET_WORKER
+
+statement ok
+LOAD vgi;
+
+statement ok
+ATTACH 'charset' AS charset (TYPE vgi, LOCATION '${VGI_CHARSET_WORKER}');
+
+statement ok
+SET search_path = 'charset.main';
+
+# windows-1252 'café' (é = 0xE9) → detected as windows-1252.
+query T
+SELECT detect_encoding('\x63\x61\x66\xE9'::BLOB);
+----
+windows-1252
+
+# Plain valid UTF-8 → 'UTF-8'. (Bytes of "Héllo wörld — café"; non-ASCII must be
+# hex-escaped in a DuckDB BLOB literal.)
+query T
+SELECT detect_encoding('\x48\xc3\xa9\x6c\x6c\x6f\x20\x77\xc3\xb6\x72\x6c\x64\x20\xe2\x80\x94\x20\x63\x61\x66\xc3\xa9'::BLOB);
+----
+UTF-8
+
+# UTF-16LE BOM (FF FE) + "Hi" → UTF-16LE.
+query T
+SELECT detect_encoding('\xFF\xFE\x48\x00\x69\x00'::BLOB);
+----
+UTF-16LE
+
+# UTF-16BE BOM (FE FF) + "Hi" → UTF-16BE.
+query T
+SELECT detect_encoding('\xFE\xFF\x00\x48\x00\x69'::BLOB);
+----
+UTF-16BE
+
+# Empty BLOB → NULL (nothing to detect).
+query T
+SELECT detect_encoding(''::BLOB);
+----
+NULL
+
+# NULL input → NULL.
+query T
+SELECT detect_encoding(NULL::BLOB);
+----
+NULL
+
+# Confidence: clean ASCII decodes losslessly → 1.0.
+query R
+SELECT detect_confidence('hello'::BLOB);
+----
+1.0
+
+# windows-1252 'café' decodes cleanly as 1252 → 1.0.
+query R
+SELECT detect_confidence('\x63\x61\x66\xE9'::BLOB);
+----
+1.0
+
+# Empty/NULL confidence → NULL.
+query R
+SELECT detect_confidence(''::BLOB);
+----
+NULL
+
+query R
+SELECT detect_confidence(NULL::BLOB);
+----
+NULL
+
+# is_valid_utf8: valid UTF-8 'café' (bytes 63 61 66 C3 A9) → true.
+query I
+SELECT is_valid_utf8('\x63\x61\x66\xC3\xA9'::BLOB);
+----
+true
+
+# A lone 0xE9 (1252 'café' bytes) is NOT valid UTF-8 → false.
+query I
+SELECT is_valid_utf8('\x63\x61\x66\xE9'::BLOB);
+----
+false
+
+# NULL → NULL.
+query I
+SELECT is_valid_utf8(NULL::BLOB);
+----
+NULL
+
+statement ok
+USE memory;
+
+statement ok
+DETACH charset;

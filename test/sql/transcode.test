@@ -1,0 +1,120 @@
+# name: test/sql/transcode.test
+# group: [vgi_charset]
+#
+# Decode/encode/repair scalars: to_utf8, to_utf8_from, transcode, fix_mojibake,
+# plus the supported_encodings() discovery table. Byte inputs are exact
+# '\x..'::BLOB literals for deterministic assertions.
+
+require-env VGI_CHARSET_WORKER
+
+statement ok
+LOAD vgi;
+
+statement ok
+ATTACH 'charset' AS charset (TYPE vgi, LOCATION '${VGI_CHARSET_WORKER}');
+
+statement ok
+SET search_path = 'charset.main';
+
+# to_utf8 of windows-1252 'café' bytes → 'café'.
+query T
+SELECT to_utf8('\x63\x61\x66\xE9'::BLOB);
+----
+café
+
+# Empty/NULL → NULL.
+query T
+SELECT to_utf8(''::BLOB);
+----
+NULL
+
+query T
+SELECT to_utf8(NULL::BLOB);
+----
+NULL
+
+# to_utf8_from with explicit Shift_JIS: 日本語.
+query T
+SELECT to_utf8_from('\x93\xFA\x96\x7B\x8C\xEA'::BLOB, 'shift_jis');
+----
+日本語
+
+# to_utf8_from with explicit windows-1252.
+query T
+SELECT to_utf8_from('\x63\x61\x66\xE9'::BLOB, 'windows-1252');
+----
+café
+
+# Unknown encoding label → ERROR.
+statement error
+SELECT to_utf8_from('\x61'::BLOB, 'not-a-real-encoding');
+----
+
+# NULL bytes → NULL.
+query T
+SELECT to_utf8_from(NULL::BLOB, 'utf-8');
+----
+NULL
+
+# transcode 'café' → windows-1252 bytes, then read back: round-trips to 'café'.
+query T
+SELECT to_utf8_from(transcode('café', 'windows-1252'), 'windows-1252');
+----
+café
+
+# transcode produces the exact 1252 byte sequence.
+query I
+SELECT transcode('café', 'windows-1252') = '\x63\x61\x66\xE9'::BLOB;
+----
+true
+
+# transcode unknown label → ERROR.
+statement error
+SELECT transcode('x', 'nope');
+----
+
+# transcode NULL → NULL.
+query T
+SELECT transcode(NULL, 'utf-8');
+----
+NULL
+
+# fix_mojibake: classic 'CafÃ©' → 'Café'.
+query T
+SELECT fix_mojibake('CafÃ©');
+----
+Café
+
+# fix_mojibake no-ops on already-clean text.
+query T
+SELECT fix_mojibake('Café');
+----
+Café
+
+# fix_mojibake NULL → NULL.
+query T
+SELECT fix_mojibake(NULL);
+----
+NULL
+
+# supported_encodings() discovery: non-empty and includes UTF-8 + Shift_JIS.
+query I
+SELECT count(*) > 0 FROM supported_encodings();
+----
+true
+
+query I
+SELECT count(*) FROM supported_encodings() WHERE label = 'UTF-8';
+----
+1
+
+query I
+SELECT count(*) FROM supported_encodings() WHERE label = 'Shift_JIS';
+----
+1
+
+statement ok
+USE memory;
+
+statement ok
+DETACH charset;
