@@ -4,7 +4,9 @@
 
 <p align="center"><em>A <a href="https://query.farm">Query.Farm</a> VGI worker for DuckDB.</em></p>
 
-# vgi-charset
+# Detect Text Encoding & Transcode to UTF-8 (Fix Mojibake) in DuckDB
+
+> **vgi-charset** · a [Query.Farm](https://query.farm) VGI worker
 
 A [VGI](https://query.farm) worker that brings **character-encoding detection**
 and **UTF-8 transcoding** (mojibake repair) to DuckDB over Apache Arrow.
