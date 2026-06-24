@@ -42,6 +42,18 @@ impl ScalarFunction for DetectEncoding {
                     .into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Detect Character Encoding",
+                "Detect the character encoding of a BLOB of raw text bytes and return its \
+                 canonical label, e.g. 'UTF-8', 'windows-1252', or 'Shift_JIS'. It first checks \
+                 for a byte-order mark, then falls back to the chardetng (Firefox) heuristic. \
+                 Returns NULL for empty or NULL input.",
+                "Detect the character encoding of text bytes, e.g. \
+                 `detect_encoding('\\x63\\x61\\x66\\xE9'::BLOB)` → `windows-1252`.",
+                "detect encoding, charset detection, guess encoding, chardetng, BOM, \
+                 sniff encoding, identify encoding, windows-1252, shift_jis, utf-8",
+                "scalar/detect.rs",
+            ),
             ..Default::default()
         }
     }
@@ -94,6 +106,18 @@ impl ScalarFunction for DetectConfidence {
                     .into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Detection Confidence Score",
+                "Return a confidence proxy in the range [0, 1] for the encoding detected on a \
+                 BLOB of text bytes. It is 1.0 when the bytes decode losslessly (or carry a \
+                 BOM), and is scaled down by the fraction of U+FFFD replacement characters the \
+                 decode produced. Returns NULL for empty or NULL input.",
+                "Confidence in [0,1] for the detected encoding of text bytes; `1.0` when the \
+                 decode is lossless.",
+                "detection confidence, encoding confidence, score, reliability, certainty, \
+                 chardetng, replacement characters, lossless decode",
+                "scalar/detect.rs",
+            ),
             ..Default::default()
         }
     }
@@ -135,11 +159,22 @@ impl ScalarFunction for IsValidUtf8 {
             description: "Whether the bytes are already valid UTF-8. NULL for NULL input.".into(),
             return_type: Some(DataType::Boolean),
             examples: vec![FunctionExample {
-                sql: "SELECT charset.main.is_valid_utf8('café'::BLOB);".into(),
+                sql: "SELECT charset.main.is_valid_utf8('\\x63\\x61\\x66\\xC3\\xA9'::BLOB);".into(),
                 description: "Check whether a BLOB already holds valid UTF-8 (returns true)."
                     .into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Is Valid UTF-8 Check",
+                "Test whether a BLOB of bytes is already well-formed UTF-8, returning true or \
+                 false. Use it to decide whether bytes need decoding/transcoding at all. An \
+                 empty BLOB is valid UTF-8; NULL input returns NULL.",
+                "Return whether a BLOB of bytes is already valid UTF-8, e.g. \
+                 `is_valid_utf8('café'::BLOB)` → `true`.",
+                "valid utf-8, is utf8, well-formed, utf-8 check, validate encoding, \
+                 byte validity, malformed bytes",
+                "scalar/detect.rs",
+            ),
             ..Default::default()
         }
     }

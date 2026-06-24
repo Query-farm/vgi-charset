@@ -26,6 +26,14 @@ impl ScalarFunction for CharsetVersion {
                 description: "Report the running charset worker's version string.".into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Charset Worker Version",
+                "Return the semantic version string of the running charset worker binary. Use it \
+                 to confirm which build is attached and to gate behaviour on worker version.",
+                "Return the charset worker's version string, e.g. `charset_version()`.",
+                "version, charset version, worker version, build version, semver, about",
+                "scalar/version.rs",
+            ),
             ..Default::default()
         }
     }

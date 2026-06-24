@@ -24,6 +24,7 @@
 
 mod arrow_io;
 mod charset;
+mod meta;
 mod scalar;
 mod table;
 
@@ -46,6 +47,17 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             "Character-encoding detection and UTF-8 transcoding (mojibake repair).".to_string(),
         ),
         tags: vec![
+            (
+                "vgi.title".to_string(),
+                "Character Encoding Detection & Transcoding".to_string(),
+            ),
+            (
+                "vgi.keywords".to_string(),
+                "charset, character encoding, encoding detection, transcode, transcoding, UTF-8, \
+                 mojibake, mojibake repair, decode, encode, windows-1252, latin-1, shift_jis, \
+                 chardetng, encoding_rs, BOM, garbled text"
+                    .to_string(),
+            ),
             (
                 "vgi.description_llm".to_string(),
                 "Detect the character encoding of raw text bytes (BOM check plus the Firefox \
@@ -88,6 +100,23 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 "Character-encoding detection and UTF-8 transcoding functions.".to_string(),
             ),
             tags: vec![
+                ("vgi.title".to_string(), "Charset — main".to_string()),
+                (
+                    "vgi.keywords".to_string(),
+                    "charset, character encoding, detect_encoding, detect_confidence, \
+                     is_valid_utf8, to_utf8, to_utf8_from, transcode, fix_mojibake, \
+                     supported_encodings, mojibake, UTF-8, decode, encode, transcoding"
+                        .to_string(),
+                ),
+                // VGI123 classifying tags (bare keys: domain/category/topic) for faceting.
+                ("domain".to_string(), "text-processing".to_string()),
+                ("category".to_string(), "character-encoding".to_string()),
+                ("topic".to_string(), "encoding-detection-and-transcoding".to_string()),
+                (
+                    "vgi.source_url".to_string(),
+                    "https://github.com/Query-farm/vgi-charset/blob/main/crates/charset-worker/src/main.rs"
+                        .to_string(),
+                ),
                 (
                     "vgi.description_llm".to_string(),
                     "Character-encoding functions: detect the encoding of text bytes, decode bytes \
@@ -100,6 +129,18 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                     "vgi.description_md".to_string(),
                     "Character-encoding detection and UTF-8 transcoding functions over Apache \
                      Arrow."
+                        .to_string(),
+                ),
+                // VGI506 representative example queries for the schema.
+                (
+                    "vgi.example_queries".to_string(),
+                    "SELECT charset.main.detect_encoding('\\x63\\x61\\x66\\xE9'::BLOB);\n\
+                     SELECT charset.main.to_utf8('\\x63\\x61\\x66\\xE9'::BLOB);\n\
+                     SELECT charset.main.to_utf8_from('\\x93\\xFA\\x96\\x7B'::BLOB, 'shift_jis');\n\
+                     SELECT charset.main.transcode('café', 'windows-1252');\n\
+                     SELECT charset.main.fix_mojibake('CafÃ©');\n\
+                     SELECT charset.main.is_valid_utf8('\\x63\\x61\\x66\\xC3\\xA9'::BLOB);\n\
+                     SELECT * FROM charset.main.supported_encodings() LIMIT 5;"
                         .to_string(),
                 ),
             ],

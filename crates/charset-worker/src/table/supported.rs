@@ -13,6 +13,41 @@ use vgi_rpc::{OutputCollector, Result, RpcError};
 
 use crate::charset;
 
+/// Guaranteed-runnable, catalog-qualified examples (VGI509). Each `sql` is
+/// self-contained and re-runnable against an attached `charset` worker. We omit
+/// `expected_result` deliberately — the linter only needs each query to execute
+/// cleanly, and exact byte/string output is brittle to pin here.
+const EXECUTABLE_EXAMPLES: &str = r#"[
+  {
+    "description": "Detect the encoding of windows-1252 bytes for \"café\".",
+    "sql": "SELECT charset.main.detect_encoding('\\x63\\x61\\x66\\xE9'::BLOB) AS encoding"
+  },
+  {
+    "description": "Auto-detect and decode windows-1252 bytes to UTF-8.",
+    "sql": "SELECT charset.main.to_utf8('\\x63\\x61\\x66\\xE9'::BLOB) AS text"
+  },
+  {
+    "description": "Decode Shift-JIS bytes to UTF-8 with an explicit codec label.",
+    "sql": "SELECT charset.main.to_utf8_from('\\x93\\xFA\\x96\\x7B'::BLOB, 'shift_jis') AS text"
+  },
+  {
+    "description": "Encode a UTF-8 string into windows-1252 bytes for export.",
+    "sql": "SELECT charset.main.transcode('café', 'windows-1252') AS bytes"
+  },
+  {
+    "description": "Repair double-encoded mojibake back to clean UTF-8.",
+    "sql": "SELECT charset.main.fix_mojibake('CafÃ©') AS fixed"
+  },
+  {
+    "description": "Check whether bytes are already valid UTF-8.",
+    "sql": "SELECT charset.main.is_valid_utf8('\\x63\\x61\\x66\\xC3\\xA9'::BLOB) AS ok"
+  },
+  {
+    "description": "List the first few supported encoding labels.",
+    "sql": "SELECT label FROM charset.main.supported_encodings() ORDER BY label LIMIT 5"
+  }
+]"#;
+
 pub struct SupportedEncodings;
 
 fn output_schema() -> SchemaRef {
@@ -29,18 +64,31 @@ impl TableFunction for SupportedEncodings {
     }
 
     fn metadata(&self) -> FunctionMetadata {
+        let mut tags = crate::meta::object_tags(
+            "Supported Encodings Catalog",
+            "List every encoding label the worker accepts — the encoding_rs / WHATWG set of \
+             canonical encoding names. Use it to discover which labels are valid inputs to \
+             to_utf8_from and transcode.",
+            "List every supported encoding label. Column: `label` (a canonical codec name like \
+             `UTF-8`, `windows-1252`, `Shift_JIS`).",
+            "supported encodings, list encodings, available codecs, encoding catalog, \
+             discovery, what encodings, WHATWG, encoding_rs, labels",
+            "table/supported.rs",
+        );
+        tags.push((
+            "vgi.columns_md".into(),
+            "| column | type | description |\n\
+             |---|---|---|\n\
+             | `label` | VARCHAR | A canonical encoding label accepted by `to_utf8_from` and \
+             `transcode`, e.g. `UTF-8`, `windows-1252`, `Shift_JIS`. |"
+                .into(),
+        ));
+        tags.push(("vgi.executable_examples".into(), EXECUTABLE_EXAMPLES.into()));
         FunctionMetadata {
             description: "List every encoding label the worker accepts (the encoding_rs / WHATWG \
                           set of canonical names)"
                 .into(),
-            tags: vec![(
-                "vgi.columns_md".into(),
-                "| column | type | description |\n\
-                 |---|---|---|\n\
-                 | `label` | VARCHAR | A canonical encoding label accepted by `to_utf8_from` and \
-                 `transcode`, e.g. `UTF-8`, `windows-1252`, `Shift_JIS`. |"
-                    .into(),
-            )],
+            tags,
             ..Default::default()
         }
     }

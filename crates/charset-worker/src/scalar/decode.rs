@@ -42,6 +42,18 @@ impl ScalarFunction for ToUtf8 {
                     .into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Decode Bytes to UTF-8",
+                "Auto-detect the encoding of a BLOB of text bytes and decode it to a UTF-8 \
+                 string. Undecodable bytes within the detected encoding become the U+FFFD \
+                 replacement character rather than an error. Returns NULL for empty or NULL \
+                 input. Use to_utf8_from when you already know the source encoding.",
+                "Auto-detect and decode text bytes to a UTF-8 string, e.g. \
+                 `to_utf8('\\x63\\x61\\x66\\xE9'::BLOB)` → `café`.",
+                "to utf8, decode, convert to utf-8, auto decode, bytes to text, \
+                 normalize encoding, clean text, detected encoding",
+                "scalar/decode.rs",
+            ),
             ..Default::default()
         }
     }
@@ -95,6 +107,19 @@ impl ScalarFunction for ToUtf8From {
                     .into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Decode Bytes With Explicit Encoding",
+                "Decode a BLOB of text bytes to a UTF-8 string using an explicit encoding label \
+                 you supply (e.g. 'shift_jis', 'windows-1252'), with no auto-detection. Raises \
+                 an error if the label names an encoding the worker does not recognise; \
+                 undecodable bytes within a known encoding become U+FFFD. Returns NULL for NULL \
+                 input.",
+                "Decode text bytes with an explicit encoding label, e.g. \
+                 `to_utf8_from('\\x93\\xFA'::BLOB, 'shift_jis')`.",
+                "to utf8 from, decode with encoding, explicit codec, shift_jis, windows-1252, \
+                 latin-1, known encoding, force encoding",
+                "scalar/decode.rs",
+            ),
             ..Default::default()
         }
     }

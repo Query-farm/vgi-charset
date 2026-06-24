@@ -44,6 +44,19 @@ impl ScalarFunction for Transcode {
                     .into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Transcode Text to Encoding",
+                "Encode a UTF-8 string into the bytes of a named legacy encoding (returned as a \
+                 BLOB) so it can be exported to a system that expects that codec, e.g. \
+                 transcode('café', 'windows-1252'). Characters the target encoding cannot \
+                 represent are emitted as HTML numeric references per encoding_rs. Raises an \
+                 error if the encoding label is unknown; returns NULL for NULL input.",
+                "Encode a UTF-8 string into a named encoding's bytes (BLOB), e.g. \
+                 `transcode('café', 'windows-1252')`.",
+                "transcode, encode, to bytes, export encoding, windows-1252, latin-1, \
+                 shift_jis, legacy encoding, utf-8 to bytes, re-encode",
+                "scalar/encode.rs",
+            ),
             ..Default::default()
         }
     }
@@ -100,6 +113,18 @@ impl ScalarFunction for FixMojibake {
                     .into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Repair Mojibake Text",
+                "Repair the classic double-encoding mojibake where UTF-8 text was mistakenly \
+                 read as Latin-1/Windows-1252 and then re-stored as UTF-8, turning garbled \
+                 sequences like 'CafÃ©' back into 'Café'. It only rewrites text when doing so \
+                 strictly reduces mojibake markers, otherwise it returns the input unchanged. \
+                 Returns NULL for NULL input.",
+                "Repair double-encoded mojibake text, e.g. `fix_mojibake('CafÃ©')` → `Café`.",
+                "fix mojibake, repair mojibake, garbled text, double encoding, \
+                 unmangle, latin-1 as utf-8, mangled characters, clean text, demojibake",
+                "scalar/encode.rs",
+            ),
             ..Default::default()
         }
     }
