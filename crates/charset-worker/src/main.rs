@@ -59,23 +59,36 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                     .to_string(),
             ),
             (
-                "vgi.description_llm".to_string(),
+                "vgi.doc_llm".to_string(),
                 "Detect the character encoding of raw text bytes (BOM check plus the Firefox \
                  chardetng heuristic), decode legacy/unlabelled bytes to UTF-8 (auto-detected or \
                  with an explicit codec label like 'shift_jis'), encode UTF-8 back into a legacy \
                  encoding's bytes, repair double-encoded mojibake such as 'CafÃ©' -> 'Café', test \
                  whether bytes are already valid UTF-8, and list every supported encoding label. \
                  Use for cleaning up imported text, fixing garbled characters, and normalising \
-                 mixed-encoding data to UTF-8 in SQL."
+                 mixed-encoding data to UTF-8 in SQL. Detection is heuristic, so pair \
+                 detect_encoding with detect_confidence before trusting a guess on short input."
                     .to_string(),
             ),
             (
-                "vgi.description_md".to_string(),
-                "# charset\n\nCharacter-encoding detection and UTF-8 transcoding over Apache \
-                 Arrow, powered by Mozilla's `chardetng` (detection) and `encoding_rs` (the \
-                 WHATWG codec library).\n\nScalars: `detect_encoding`, `detect_confidence`, \
-                 `is_valid_utf8`, `to_utf8`, `to_utf8_from`, `transcode`, `fix_mojibake`, \
-                 `charset_version`. Table: `supported_encodings`."
+                "vgi.doc_md".to_string(),
+                "# charset — character-encoding detection & transcoding\n\n\
+                 A VGI worker that brings encoding detection and UTF-8 transcoding (including \
+                 mojibake repair) to DuckDB/SQL over Apache Arrow. Detection uses Mozilla's \
+                 `chardetng` (the Firefox heuristic); decoding/encoding uses `encoding_rs` (the \
+                 WHATWG codec library).\n\n\
+                 ## When to use\n\n\
+                 Reach for this worker when ingesting text of unknown or mixed provenance: \
+                 CSV/log/email dumps in legacy code pages, columns that arrive double-encoded \
+                 (mojibake), or bytes you need to export back to a system that expects a specific \
+                 codec.\n\n\
+                 ## Surface\n\n\
+                 - **Scalars:** `detect_encoding`, `detect_confidence`, `is_valid_utf8`, \
+                 `to_utf8`, `to_utf8_from`, `transcode`, `fix_mojibake`, `charset_version`.\n\
+                 - **Table:** `supported_encodings`.\n\n\
+                 ## Notes\n\n\
+                 Empty/NULL input yields NULL. An unknown encoding *label* raises an error; \
+                 undecodable *bytes* within a known encoding become U+FFFD rather than failing."
                     .to_string(),
             ),
             ("vgi.author".to_string(), "Query.Farm".to_string()),
@@ -118,17 +131,35 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                         .to_string(),
                 ),
                 (
-                    "vgi.description_llm".to_string(),
-                    "Character-encoding functions: detect the encoding of text bytes, decode bytes \
-                     to UTF-8 (auto-detected or with an explicit label), encode UTF-8 into a \
-                     legacy encoding, repair double-encoded mojibake, test for valid UTF-8, and \
-                     enumerate supported encodings."
+                    "vgi.doc_llm".to_string(),
+                    "The `main` schema of the charset worker. It exposes character-encoding \
+                     functions: detect the encoding of text bytes, score detection confidence, \
+                     test for valid UTF-8, decode bytes to UTF-8 (auto-detected or with an \
+                     explicit label), encode UTF-8 into a legacy encoding, repair double-encoded \
+                     mojibake, and enumerate supported encodings. All functions are catalog- \
+                     qualified as charset.main.<fn>(...) and operate row-wise over Arrow."
                         .to_string(),
                 ),
                 (
-                    "vgi.description_md".to_string(),
-                    "Character-encoding detection and UTF-8 transcoding functions over Apache \
-                     Arrow."
+                    "vgi.doc_md".to_string(),
+                    "## charset.main\n\n\
+                     Character-encoding detection and UTF-8 transcoding functions over Apache \
+                     Arrow.\n\n\
+                     ### Functions\n\n\
+                     | function | purpose |\n\
+                     |---|---|\n\
+                     | `detect_encoding(bytes)` | guess the source encoding label |\n\
+                     | `detect_confidence(bytes)` | `[0,1]` confidence in that guess |\n\
+                     | `is_valid_utf8(bytes)` | is the BLOB already UTF-8? |\n\
+                     | `to_utf8(bytes)` | auto-detect + decode to UTF-8 |\n\
+                     | `to_utf8_from(bytes, label)` | decode with an explicit codec |\n\
+                     | `transcode(text, label)` | encode UTF-8 into a codec's bytes |\n\
+                     | `fix_mojibake(text)` | repair double-encoded text |\n\
+                     | `supported_encodings()` | list accepted encoding labels |\n\n\
+                     ### Usage\n\n\
+                     ```sql\n\
+                     SELECT charset.main.to_utf8('\\x63\\x61\\x66\\xE9'::BLOB); -- 'café'\n\
+                     ```"
                         .to_string(),
                 ),
                 // VGI506 representative example queries for the schema.

@@ -30,7 +30,14 @@ impl ScalarFunction for CharsetVersion {
                 "Charset Worker Version",
                 "Return the semantic version string of the running charset worker binary. Use it \
                  to confirm which build is attached and to gate behaviour on worker version.",
-                "Return the charset worker's version string, e.g. `charset_version()`.",
+                "## charset_version\n\n\
+                 Returns the semantic version string of the running charset worker binary.\n\n\
+                 **Returns:** a `VARCHAR` like `0.1.0`. Takes no arguments.\n\n\
+                 **When to use:** diagnostics — confirm which build DuckDB has attached, or gate \
+                 client behaviour on the worker version.\n\n\
+                 ```sql\n\
+                 SELECT charset.main.charset_version();\n\
+                 ```",
                 "version, charset version, worker version, build version, semver, about",
                 "scalar/version.rs",
             ),

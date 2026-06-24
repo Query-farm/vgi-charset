@@ -51,8 +51,19 @@ impl ScalarFunction for Transcode {
                  transcode('café', 'windows-1252'). Characters the target encoding cannot \
                  represent are emitted as HTML numeric references per encoding_rs. Raises an \
                  error if the encoding label is unknown; returns NULL for NULL input.",
-                "Encode a UTF-8 string into a named encoding's bytes (BLOB), e.g. \
-                 `transcode('café', 'windows-1252')`.",
+                "## transcode\n\n\
+                 Encodes a UTF-8 string into the bytes of a named legacy encoding, returned as a \
+                 `BLOB`, so it can be exported to a system that expects that codec.\n\n\
+                 **Arguments:** `text` (UTF-8 VARCHAR) and `to_encoding` (target codec label, \
+                 e.g. `windows-1252`, `shift_jis`).\n\n\
+                 **Behaviour:** characters the target encoding cannot represent are emitted as \
+                 HTML numeric references (per `encoding_rs`) rather than dropped. An unknown \
+                 encoding label raises an error; `NULL` input returns `NULL`.\n\n\
+                 **When to use:** the inverse of `to_utf8`/`to_utf8_from` — producing legacy \
+                 bytes for downstream systems or file exports.\n\n\
+                 ```sql\n\
+                 SELECT charset.main.transcode('café', 'windows-1252'); -- \\x63\\x61\\x66\\xE9\n\
+                 ```",
                 "transcode, encode, to bytes, export encoding, windows-1252, latin-1, \
                  shift_jis, legacy encoding, utf-8 to bytes, re-encode",
                 "scalar/encode.rs",
@@ -120,7 +131,18 @@ impl ScalarFunction for FixMojibake {
                  sequences like 'CafÃ©' back into 'Café'. It only rewrites text when doing so \
                  strictly reduces mojibake markers, otherwise it returns the input unchanged. \
                  Returns NULL for NULL input.",
-                "Repair double-encoded mojibake text, e.g. `fix_mojibake('CafÃ©')` → `Café`.",
+                "## fix_mojibake\n\n\
+                 Repairs the classic *mojibake* failure where UTF-8 text was mistakenly read as \
+                 Latin-1/Windows-1252 and then re-stored as UTF-8, leaving garbled sequences \
+                 like `CafÃ©`.\n\n\
+                 **How it works:** re-encodes the text as Windows-1252 and re-decodes it as \
+                 UTF-8, accepting the result **only** when it strictly reduces the number of \
+                 mojibake markers. Otherwise it returns the input unchanged, so clean text and \
+                 non-mojibake garble pass through untouched.\n\n\
+                 **Returns:** a `VARCHAR`; `NULL` for `NULL` input.\n\n\
+                 ```sql\n\
+                 SELECT charset.main.fix_mojibake('CafÃ©'); -- 'Café'\n\
+                 ```",
                 "fix mojibake, repair mojibake, garbled text, double encoding, \
                  unmangle, latin-1 as utf-8, mangled characters, clean text, demojibake",
                 "scalar/encode.rs",

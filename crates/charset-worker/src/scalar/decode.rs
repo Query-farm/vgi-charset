@@ -48,8 +48,20 @@ impl ScalarFunction for ToUtf8 {
                  string. Undecodable bytes within the detected encoding become the U+FFFD \
                  replacement character rather than an error. Returns NULL for empty or NULL \
                  input. Use to_utf8_from when you already know the source encoding.",
-                "Auto-detect and decode text bytes to a UTF-8 string, e.g. \
-                 `to_utf8('\\x63\\x61\\x66\\xE9'::BLOB)` → `café`.",
+                "## to_utf8\n\n\
+                 Auto-detects the encoding of a `BLOB` of text bytes and decodes it to a UTF-8 \
+                 string in one step.\n\n\
+                 **How it works:** runs the same detection as `detect_encoding` (BOM, then \
+                 `chardetng`) and decodes with `encoding_rs`. Bytes that are undecodable in the \
+                 detected encoding become the `U+FFFD` replacement character rather than raising \
+                 an error.\n\n\
+                 **Returns:** a `VARCHAR`; `NULL` for empty or `NULL` input.\n\n\
+                 **When to use:** the convenient default for unlabelled data. Use \
+                 `to_utf8_from` instead when you already know the source codec and want to skip \
+                 detection.\n\n\
+                 ```sql\n\
+                 SELECT charset.main.to_utf8('\\x63\\x61\\x66\\xE9'::BLOB); -- 'café'\n\
+                 ```",
                 "to utf8, decode, convert to utf-8, auto decode, bytes to text, \
                  normalize encoding, clean text, detected encoding",
                 "scalar/decode.rs",
@@ -114,8 +126,20 @@ impl ScalarFunction for ToUtf8From {
                  an error if the label names an encoding the worker does not recognise; \
                  undecodable bytes within a known encoding become U+FFFD. Returns NULL for NULL \
                  input.",
-                "Decode text bytes with an explicit encoding label, e.g. \
-                 `to_utf8_from('\\x93\\xFA'::BLOB, 'shift_jis')`.",
+                "## to_utf8_from\n\n\
+                 Decodes a `BLOB` of text bytes to a UTF-8 string using an **explicit** encoding \
+                 label you supply — no auto-detection.\n\n\
+                 **Arguments:** `bytes` (the BLOB) and `encoding` (a codec label such as \
+                 `shift_jis`, `windows-1252`, or `iso-8859-1`). Call `supported_encodings()` to \
+                 see the accepted labels.\n\n\
+                 **Errors & nulls:** an unknown label raises an error (the caller named a codec \
+                 that does not exist); undecodable bytes within a *known* encoding become \
+                 `U+FFFD`; `NULL` input returns `NULL`.\n\n\
+                 **When to use:** prefer this over `to_utf8` whenever the source encoding is \
+                 known, to avoid detection mistakes.\n\n\
+                 ```sql\n\
+                 SELECT charset.main.to_utf8_from('\\x93\\xFA\\x96\\x7B'::BLOB, 'shift_jis');\n\
+                 ```",
                 "to utf8 from, decode with encoding, explicit codec, shift_jis, windows-1252, \
                  latin-1, known encoding, force encoding",
                 "scalar/decode.rs",

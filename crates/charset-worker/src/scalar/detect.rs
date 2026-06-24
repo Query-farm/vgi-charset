@@ -48,8 +48,18 @@ impl ScalarFunction for DetectEncoding {
                  canonical label, e.g. 'UTF-8', 'windows-1252', or 'Shift_JIS'. It first checks \
                  for a byte-order mark, then falls back to the chardetng (Firefox) heuristic. \
                  Returns NULL for empty or NULL input.",
-                "Detect the character encoding of text bytes, e.g. \
-                 `detect_encoding('\\x63\\x61\\x66\\xE9'::BLOB)` → `windows-1252`.",
+                "## detect_encoding\n\n\
+                 Guesses the character encoding of a `BLOB` of raw text bytes and returns its \
+                 canonical label.\n\n\
+                 **How it works:** a byte-order-mark check runs first; if there is no BOM, the \
+                 `chardetng` (Firefox) heuristic inspects the whole buffer.\n\n\
+                 **Returns:** a label such as `UTF-8`, `windows-1252`, or `Shift_JIS`; `NULL` \
+                 for empty or `NULL` input.\n\n\
+                 **Tip:** detection is statistical, so short or ambiguous input can be \
+                 mis-guessed — combine with `detect_confidence` before trusting the result.\n\n\
+                 ```sql\n\
+                 SELECT charset.main.detect_encoding('\\x63\\x61\\x66\\xE9'::BLOB); -- windows-1252\n\
+                 ```",
                 "detect encoding, charset detection, guess encoding, chardetng, BOM, \
                  sniff encoding, identify encoding, windows-1252, shift_jis, utf-8",
                 "scalar/detect.rs",
@@ -112,8 +122,19 @@ impl ScalarFunction for DetectConfidence {
                  BLOB of text bytes. It is 1.0 when the bytes decode losslessly (or carry a \
                  BOM), and is scaled down by the fraction of U+FFFD replacement characters the \
                  decode produced. Returns NULL for empty or NULL input.",
-                "Confidence in [0,1] for the detected encoding of text bytes; `1.0` when the \
-                 decode is lossless.",
+                "## detect_confidence\n\n\
+                 Scores how trustworthy the detected encoding of a `BLOB` is, on a `[0, 1]` \
+                 scale.\n\n\
+                 **How it works:** `chardetng` itself does not expose a probability, so this \
+                 proxies confidence from the decode — `1.0` when the bytes decode losslessly (or \
+                 carry a BOM), scaled down by the fraction of `U+FFFD` replacement characters the \
+                 decode produced.\n\n\
+                 **Returns:** a `DOUBLE` in `[0, 1]`; `NULL` for empty or `NULL` input.\n\n\
+                 **Usage:** gate automated cleanup on a threshold so low-confidence guesses are \
+                 flagged for review rather than silently transformed.\n\n\
+                 ```sql\n\
+                 SELECT charset.main.detect_confidence('\\x63\\x61\\x66\\xE9'::BLOB); -- 1.0\n\
+                 ```",
                 "detection confidence, encoding confidence, score, reliability, certainty, \
                  chardetng, replacement characters, lossless decode",
                 "scalar/detect.rs",
@@ -169,8 +190,15 @@ impl ScalarFunction for IsValidUtf8 {
                 "Test whether a BLOB of bytes is already well-formed UTF-8, returning true or \
                  false. Use it to decide whether bytes need decoding/transcoding at all. An \
                  empty BLOB is valid UTF-8; NULL input returns NULL.",
-                "Return whether a BLOB of bytes is already valid UTF-8, e.g. \
-                 `is_valid_utf8('café'::BLOB)` → `true`.",
+                "## is_valid_utf8\n\n\
+                 Tests whether a `BLOB` of bytes is already well-formed UTF-8.\n\n\
+                 **Returns:** `BOOLEAN` — `true` when every byte forms a valid UTF-8 sequence, \
+                 `false` otherwise. An empty `BLOB` is valid UTF-8; `NULL` input returns `NULL`.\n\n\
+                 **When to use:** as a cheap pre-check to skip decoding/transcoding for data \
+                 that is already clean, or to find rows that still need repair.\n\n\
+                 ```sql\n\
+                 SELECT charset.main.is_valid_utf8('\\x63\\x61\\x66\\xC3\\xA9'::BLOB); -- true\n\
+                 ```",
                 "valid utf-8, is utf8, well-formed, utf-8 check, validate encoding, \
                  byte validity, malformed bytes",
                 "scalar/detect.rs",

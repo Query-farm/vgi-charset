@@ -69,14 +69,21 @@ impl TableFunction for SupportedEncodings {
             "List every encoding label the worker accepts — the encoding_rs / WHATWG set of \
              canonical encoding names. Use it to discover which labels are valid inputs to \
              to_utf8_from and transcode.",
-            "List every supported encoding label. Column: `label` (a canonical codec name like \
-             `UTF-8`, `windows-1252`, `Shift_JIS`).",
+            "## supported_encodings\n\n\
+             A discovery table that lists every encoding label the worker accepts — the \
+             `encoding_rs` / WHATWG set of canonical encoding names.\n\n\
+             **Returns:** one row per encoding, with a single `label` column.\n\n\
+             **When to use:** to discover which labels are valid inputs to `to_utf8_from` and \
+             `transcode`, or to populate a picker of supported codecs.\n\n\
+             ```sql\n\
+             SELECT label FROM charset.main.supported_encodings() ORDER BY label LIMIT 5;\n\
+             ```",
             "supported encodings, list encodings, available codecs, encoding catalog, \
              discovery, what encodings, WHATWG, encoding_rs, labels",
             "table/supported.rs",
         );
         tags.push((
-            "vgi.columns_md".into(),
+            "vgi.result_columns_md".into(),
             "| column | type | description |\n\
              |---|---|---|\n\
              | `label` | VARCHAR | A canonical encoding label accepted by `to_utf8_from` and \
