@@ -4,7 +4,10 @@ use std::sync::Arc;
 
 use arrow_array::{ArrayRef, RecordBatch, StringArray};
 use arrow_schema::DataType;
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
+use vgi::{
+    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
+    ScalarFunction,
+};
 use vgi_rpc::{Result, RpcError};
 
 pub struct CharsetVersion;
@@ -18,6 +21,11 @@ impl ScalarFunction for CharsetVersion {
         FunctionMetadata {
             description: "Returns the charset worker version string".into(),
             return_type: Some(DataType::Utf8),
+            examples: vec![FunctionExample {
+                sql: "SELECT charset.main.charset_version();".into(),
+                description: "Report the running charset worker's version string.".into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }

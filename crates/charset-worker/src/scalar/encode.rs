@@ -13,7 +13,10 @@ use std::sync::Arc;
 use arrow_array::builder::{BinaryBuilder, StringBuilder};
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::DataType;
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
+use vgi::{
+    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
+    ScalarFunction,
+};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::text_str;
@@ -34,6 +37,13 @@ impl ScalarFunction for Transcode {
                           unknown label; NULL for NULL input."
                 .into(),
             return_type: Some(DataType::Binary),
+            examples: vec![FunctionExample {
+                sql: "SELECT charset.main.transcode('café', 'windows-1252');".into(),
+                description: "Encode a UTF-8 string into windows-1252 bytes for export to a \
+                              legacy system."
+                    .into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }
@@ -83,6 +93,13 @@ impl ScalarFunction for FixMojibake {
                           can't improve the text. NULL for NULL input."
                 .into(),
             return_type: Some(DataType::Utf8),
+            examples: vec![FunctionExample {
+                sql: "SELECT charset.main.fix_mojibake('CafÃ©');".into(),
+                description: "Repair classic double-encoded mojibake, turning 'CafÃ©' back into \
+                              'Café'."
+                    .into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }

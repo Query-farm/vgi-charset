@@ -13,7 +13,10 @@ use std::sync::Arc;
 use arrow_array::builder::StringBuilder;
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::DataType;
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
+use vgi::{
+    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
+    ScalarFunction,
+};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::{blob_bytes, text_str};
@@ -32,6 +35,13 @@ impl ScalarFunction for ToUtf8 {
                           (U+FFFD for undecodable bytes). NULL for empty/NULL input."
                 .into(),
             return_type: Some(DataType::Utf8),
+            examples: vec![FunctionExample {
+                sql: "SELECT charset.main.to_utf8('\\x63\\x61\\x66\\xE9'::BLOB);".into(),
+                description: "Auto-detect and decode windows-1252 bytes to the UTF-8 string \
+                              \"café\"."
+                    .into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }
@@ -77,6 +87,14 @@ impl ScalarFunction for ToUtf8From {
                           NULL for NULL bytes."
                 .into(),
             return_type: Some(DataType::Utf8),
+            examples: vec![FunctionExample {
+                sql: "SELECT charset.main.to_utf8_from('\\x93\\xFA\\x96\\x7B'::BLOB, 'shift_jis');"
+                    .into(),
+                description: "Decode Shift-JIS bytes to UTF-8 using an explicit codec label \
+                              (returns \"日本\")."
+                    .into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }

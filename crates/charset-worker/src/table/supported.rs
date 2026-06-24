@@ -33,6 +33,14 @@ impl TableFunction for SupportedEncodings {
             description: "List every encoding label the worker accepts (the encoding_rs / WHATWG \
                           set of canonical names)"
                 .into(),
+            tags: vec![(
+                "vgi.columns_md".into(),
+                "| column | type | description |\n\
+                 |---|---|---|\n\
+                 | `label` | VARCHAR | A canonical encoding label accepted by `to_utf8_from` and \
+                 `transcode`, e.g. `UTF-8`, `windows-1252`, `Shift_JIS`. |"
+                    .into(),
+            )],
             ..Default::default()
         }
     }

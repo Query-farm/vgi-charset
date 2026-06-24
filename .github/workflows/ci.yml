@@ -130,3 +130,29 @@ jobs:
         run: ci/run-integration.sh
         env:
           TRANSPORT: ${{ matrix.transport }}
+
+  metadata-quality:
+    # Lint the worker's catalog/schema/function metadata (descriptions, examples,
+    # provenance, support, columns_md) with the signed vgi community extension.
+    # Kept a separate job so the metadata-quality gate is visible on its own.
+    name: metadata quality (vgi-lint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
+
+      - name: Build worker (release)
+        run: cargo build --release --bin charset-worker
+
+      - name: vgi-lint
+        uses: Query-farm/vgi-lint-check@v1
+        with:
+          location: "${{ github.workspace }}/target/release/charset-worker"
+          fail-on: info

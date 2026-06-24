@@ -12,7 +12,10 @@ use std::sync::Arc;
 use arrow_array::builder::{BooleanBuilder, Float64Builder, StringBuilder};
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::DataType;
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
+use vgi::{
+    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
+    ScalarFunction,
+};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::blob_bytes;
@@ -32,6 +35,13 @@ impl ScalarFunction for DetectEncoding {
                           'windows-1252', 'Shift_JIS'. NULL for empty/NULL input."
                 .into(),
             return_type: Some(DataType::Utf8),
+            examples: vec![FunctionExample {
+                sql: "SELECT charset.main.detect_encoding('\\x63\\x61\\x66\\xE9'::BLOB);".into(),
+                description: "Detect the encoding of the bytes for \"café\" stored as \
+                              windows-1252 (returns 'windows-1252')."
+                    .into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }
@@ -77,6 +87,13 @@ impl ScalarFunction for DetectConfidence {
                           replacements (scaled down). NULL for empty/NULL input."
                 .into(),
             return_type: Some(DataType::Float64),
+            examples: vec![FunctionExample {
+                sql: "SELECT charset.main.detect_confidence('\\x63\\x61\\x66\\xE9'::BLOB);".into(),
+                description: "Score how confidently the bytes for \"café\" decode under the \
+                              detected encoding (1.0 when lossless)."
+                    .into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }
@@ -117,6 +134,12 @@ impl ScalarFunction for IsValidUtf8 {
         FunctionMetadata {
             description: "Whether the bytes are already valid UTF-8. NULL for NULL input.".into(),
             return_type: Some(DataType::Boolean),
+            examples: vec![FunctionExample {
+                sql: "SELECT charset.main.is_valid_utf8('café'::BLOB);".into(),
+                description: "Check whether a BLOB already holds valid UTF-8 (returns true)."
+                    .into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }
