@@ -62,14 +62,19 @@ impl ScalarFunction for DetectEncoding {
                  ```",
                 "detect encoding, charset detection, guess encoding, chardetng, BOM, \
                  sniff encoding, identify encoding, windows-1252, shift_jis, utf-8",
-                "scalar/detect.rs",
             ),
             ..Default::default()
         }
     }
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
-        vec![ArgSpec::any_column("bytes", 0, "Text bytes (BLOB)")]
+        vec![ArgSpec::column(
+            "bytes",
+            0,
+            "blob",
+            "The raw text bytes whose character encoding should be detected; inspected \
+             as-is, with no decoding. NULL or empty input yields NULL.",
+        )]
     }
 
     fn on_bind(&self, _params: &BindParams) -> Result<BindResponse> {
@@ -137,14 +142,19 @@ impl ScalarFunction for DetectConfidence {
                  ```",
                 "detection confidence, encoding confidence, score, reliability, certainty, \
                  chardetng, replacement characters, lossless decode",
-                "scalar/detect.rs",
             ),
             ..Default::default()
         }
     }
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
-        vec![ArgSpec::any_column("bytes", 0, "Text bytes (BLOB)")]
+        vec![ArgSpec::column(
+            "bytes",
+            0,
+            "blob",
+            "The raw text bytes to score: confidence is derived from how cleanly these \
+             bytes decode under the detected encoding. NULL or empty input yields NULL.",
+        )]
     }
 
     fn on_bind(&self, _params: &BindParams) -> Result<BindResponse> {
@@ -201,14 +211,19 @@ impl ScalarFunction for IsValidUtf8 {
                  ```",
                 "valid utf-8, is utf8, well-formed, utf-8 check, validate encoding, \
                  byte validity, malformed bytes",
-                "scalar/detect.rs",
             ),
             ..Default::default()
         }
     }
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
-        vec![ArgSpec::any_column("bytes", 0, "Text bytes (BLOB)")]
+        vec![ArgSpec::column(
+            "bytes",
+            0,
+            "blob",
+            "The raw bytes to test for well-formed UTF-8. Checked as-is, with no \
+             decoding; empty input is valid UTF-8 and NULL input yields NULL.",
+        )]
     }
 
     fn on_bind(&self, _params: &BindParams) -> Result<BindResponse> {

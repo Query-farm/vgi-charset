@@ -39,7 +39,6 @@ impl ScalarFunction for CharsetVersion {
                  SELECT charset.main.charset_version();\n\
                  ```",
                 "version, charset version, worker version, build version, semver, about",
-                "scalar/version.rs",
             ),
             ..Default::default()
         }

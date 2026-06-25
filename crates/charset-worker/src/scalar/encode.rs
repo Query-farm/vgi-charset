@@ -66,7 +66,6 @@ impl ScalarFunction for Transcode {
                  ```",
                 "transcode, encode, to bytes, export encoding, windows-1252, latin-1, \
                  shift_jis, legacy encoding, utf-8 to bytes, re-encode",
-                "scalar/encode.rs",
             ),
             ..Default::default()
         }
@@ -74,8 +73,22 @@ impl ScalarFunction for Transcode {
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
         vec![
-            ArgSpec::any_column("text", 0, "UTF-8 text (VARCHAR)"),
-            ArgSpec::any_column("to_encoding", 1, "Target encoding label (VARCHAR)"),
+            ArgSpec::column(
+                "text",
+                0,
+                "varchar",
+                "The UTF-8 string to encode into the target encoding's bytes. NULL input \
+                 yields NULL.",
+            ),
+            ArgSpec::column(
+                "to_encoding",
+                1,
+                "varchar",
+                "The target encoding label to encode `text` into, e.g. 'windows-1252' or \
+                 'shift_jis' (see supported_encodings()). Characters the encoding cannot \
+                 represent are emitted as HTML character references; an unknown label \
+                 raises an error.",
+            ),
         ]
     }
 
@@ -145,17 +158,18 @@ impl ScalarFunction for FixMojibake {
                  ```",
                 "fix mojibake, repair mojibake, garbled text, double encoding, \
                  unmangle, latin-1 as utf-8, mangled characters, clean text, demojibake",
-                "scalar/encode.rs",
             ),
             ..Default::default()
         }
     }
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
-        vec![ArgSpec::any_column(
+        vec![ArgSpec::column(
             "text",
             0,
-            "Possibly-mojibake text (VARCHAR)",
+            "varchar",
+            "The possibly-mojibake UTF-8 string to repair, e.g. 'CafÃ©'. Returned \
+             unchanged when no improvement is possible; NULL input yields NULL.",
         )]
     }
 

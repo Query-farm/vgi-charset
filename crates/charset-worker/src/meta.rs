@@ -5,37 +5,44 @@
 //! - `vgi.title` (VGI124)        — human-friendly display name
 //! - `vgi.doc_llm` (VGI112)      — Markdown narrative aimed at LLMs/agents
 //! - `vgi.doc_md` (VGI113)       — Markdown narrative aimed at human docs
-//! - `vgi.keywords` (VGI126)        — comma-separated search terms/synonyms
-//! - `vgi.source_url` (VGI128)      — link to the implementing source file
+//! - `vgi.keywords` (VGI126/VGI138) — a JSON array of search terms/synonyms
 //!
-//! `source_url(file)` builds the canonical GitHub blob URL for a source file so
-//! every object points at exactly where it is implemented.
+//! Per-object `vgi.source_url` links are intentionally omitted: provenance lives
+//! once on the catalog object (VGI139), so repeating a blob URL on every function
+//! is redundant. The catalog's `source_url` field is the single source of truth.
 
-/// Base GitHub blob URL for source files in this repo (pinned to `main`).
-const SOURCE_BASE: &str =
-    "https://github.com/Query-farm/vgi-charset/blob/main/crates/charset-worker/src";
-
-/// Build the implementation `vgi.source_url` for a file under `charset-worker/src`,
-/// e.g. `source_url("scalar/detect.rs")`.
-pub fn source_url(relative_path: &str) -> String {
-    format!("{SOURCE_BASE}/{relative_path}")
+/// Serialize a comma-separated list of keywords into the JSON-array form that
+/// the metadata linter expects for `vgi.keywords` (VGI138): each trimmed,
+/// non-empty term becomes one element of a JSON string array, e.g.
+/// `keywords_json("a, b")` → `["a","b"]`. JSON-escaping is handled so quotes or
+/// backslashes in a keyword cannot break the array.
+pub fn keywords_json(comma_separated: &str) -> String {
+    let items: Vec<String> = comma_separated
+        .split(',')
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(|kw| {
+            let escaped = kw.replace('\\', "\\\\").replace('"', "\\\"");
+            format!("\"{escaped}\"")
+        })
+        .collect();
+    format!("[{}]", items.join(","))
 }
 
-/// Build the five standard per-object discovery/description tags.
+/// Build the standard per-object discovery/description tags.
 ///
-/// `relative_path` is the implementing file relative to `charset-worker/src`.
+/// `keywords` is supplied as a convenient comma-separated string and serialized
+/// to the required JSON-array form for `vgi.keywords`.
 pub fn object_tags(
     title: &str,
     doc_llm: &str,
     doc_md: &str,
     keywords: &str,
-    relative_path: &str,
 ) -> Vec<(String, String)> {
     vec![
         ("vgi.title".to_string(), title.to_string()),
         ("vgi.doc_llm".to_string(), doc_llm.to_string()),
         ("vgi.doc_md".to_string(), doc_md.to_string()),
-        ("vgi.keywords".to_string(), keywords.to_string()),
-        ("vgi.source_url".to_string(), source_url(relative_path)),
+        ("vgi.keywords".to_string(), keywords_json(keywords)),
     ]
 }

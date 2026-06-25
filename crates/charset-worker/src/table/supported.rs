@@ -50,12 +50,22 @@ const EXECUTABLE_EXAMPLES: &str = r#"[
 
 pub struct SupportedEncodings;
 
-fn output_schema() -> SchemaRef {
-    Arc::new(Schema::new(vec![Field::new(
-        "label",
-        DataType::Utf8,
-        false,
-    )]))
+/// The columns produced by `supported_encodings` — shared by the table
+/// function's `on_bind` and by the catalog table that exposes it as
+/// `charset.main.supported_encodings`. The `label` column carries a `comment`
+/// (surfaced via `duckdb_columns().comment`) so it is documented wherever the
+/// schema surfaces.
+pub fn output_schema() -> SchemaRef {
+    let label = Field::new("label", DataType::Utf8, false).with_metadata(
+        std::collections::HashMap::from([(
+            "comment".to_string(),
+            "A canonical encoding label accepted by the worker, e.g. 'UTF-8', \
+             'windows-1252', or 'Shift_JIS'. Valid as the encoding argument to \
+             to_utf8_from and transcode."
+                .to_string(),
+        )]),
+    );
+    Arc::new(Schema::new(vec![label]))
 }
 
 impl TableFunction for SupportedEncodings {
@@ -80,7 +90,6 @@ impl TableFunction for SupportedEncodings {
              ```",
             "supported encodings, list encodings, available codecs, encoding catalog, \
              discovery, what encodings, WHATWG, encoding_rs, labels",
-            "table/supported.rs",
         );
         tags.push((
             "vgi.result_columns_md".into(),

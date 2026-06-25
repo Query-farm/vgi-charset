@@ -64,14 +64,20 @@ impl ScalarFunction for ToUtf8 {
                  ```",
                 "to utf8, decode, convert to utf-8, auto decode, bytes to text, \
                  normalize encoding, clean text, detected encoding",
-                "scalar/decode.rs",
             ),
             ..Default::default()
         }
     }
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
-        vec![ArgSpec::any_column("bytes", 0, "Text bytes (BLOB)")]
+        vec![ArgSpec::column(
+            "bytes",
+            0,
+            "blob",
+            "The raw text bytes to decode. The encoding is auto-detected (BOM, then \
+             chardetng) and the bytes decoded to UTF-8; undecodable bytes become \
+             U+FFFD. NULL or empty input yields NULL.",
+        )]
     }
 
     fn on_bind(&self, _params: &BindParams) -> Result<BindResponse> {
@@ -142,7 +148,6 @@ impl ScalarFunction for ToUtf8From {
                  ```",
                 "to utf8 from, decode with encoding, explicit codec, shift_jis, windows-1252, \
                  latin-1, known encoding, force encoding",
-                "scalar/decode.rs",
             ),
             ..Default::default()
         }
@@ -150,8 +155,22 @@ impl ScalarFunction for ToUtf8From {
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
         vec![
-            ArgSpec::any_column("bytes", 0, "Text bytes (BLOB)"),
-            ArgSpec::any_column("encoding", 1, "Encoding label, e.g. 'shift_jis' (VARCHAR)"),
+            ArgSpec::column(
+                "bytes",
+                0,
+                "blob",
+                "The raw text bytes to decode using the explicit encoding given in \
+                 `encoding` (no auto-detection). Undecodable bytes within that encoding \
+                 become U+FFFD. NULL input yields NULL.",
+            ),
+            ArgSpec::column(
+                "encoding",
+                1,
+                "varchar",
+                "The source encoding label to decode the bytes with, e.g. 'shift_jis', \
+                 'windows-1252', or 'iso-8859-1' (see supported_encodings()). An unknown \
+                 label raises an error.",
+            ),
         ]
     }
 

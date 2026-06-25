@@ -156,3 +156,4 @@ jobs:
         with:
           location: "${{ github.workspace }}/target/release/charset-worker"
           fail-on: info
+          version: "0.37.0"

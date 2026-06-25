@@ -53,10 +53,11 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             ),
             (
                 "vgi.keywords".to_string(),
-                "charset, character encoding, encoding detection, transcode, transcoding, UTF-8, \
-                 mojibake, mojibake repair, decode, encode, windows-1252, latin-1, shift_jis, \
-                 chardetng, encoding_rs, BOM, garbled text"
-                    .to_string(),
+                meta::keywords_json(
+                    "charset, character encoding, encoding detection, transcode, transcoding, \
+                     UTF-8, mojibake, mojibake repair, decode, encode, windows-1252, latin-1, \
+                     shift_jis, chardetng, encoding_rs, BOM, garbled text",
+                ),
             ),
             (
                 "vgi.doc_llm".to_string(),
@@ -116,19 +117,18 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 ("vgi.title".to_string(), "Charset — main".to_string()),
                 (
                     "vgi.keywords".to_string(),
-                    "charset, character encoding, detect_encoding, detect_confidence, \
-                     is_valid_utf8, to_utf8, to_utf8_from, transcode, fix_mojibake, \
-                     supported_encodings, mojibake, UTF-8, decode, encode, transcoding"
-                        .to_string(),
+                    meta::keywords_json(
+                        "charset, character encoding, detect_encoding, detect_confidence, \
+                         is_valid_utf8, to_utf8, to_utf8_from, transcode, fix_mojibake, \
+                         supported_encodings, mojibake, UTF-8, decode, encode, transcoding",
+                    ),
                 ),
                 // VGI123 classifying tags (bare keys: domain/category/topic) for faceting.
                 ("domain".to_string(), "text-processing".to_string()),
                 ("category".to_string(), "character-encoding".to_string()),
-                ("topic".to_string(), "encoding-detection-and-transcoding".to_string()),
                 (
-                    "vgi.source_url".to_string(),
-                    "https://github.com/Query-farm/vgi-charset/blob/main/crates/charset-worker/src/main.rs"
-                        .to_string(),
+                    "topic".to_string(),
+                    "encoding-detection-and-transcoding".to_string(),
                 ),
                 (
                     "vgi.doc_llm".to_string(),
@@ -160,7 +160,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                      ```sql\n\
                      SELECT charset.main.to_utf8('\\x63\\x61\\x66\\xE9'::BLOB); -- 'café'\n\
                      ```"
-                        .to_string(),
+                    .to_string(),
                 ),
                 // VGI506 representative example queries for the schema.
                 (
@@ -177,7 +177,11 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             ],
             views: Vec::new(),
             macros: Vec::new(),
-            tables: Vec::new(),
+            // Expose the parameterless `supported_encodings` scan as a regular
+            // table (VGI311) so `SELECT * FROM charset.main.supported_encodings`
+            // works without parentheses. `with_function` auto-registers the
+            // backing scan function via `set_catalog`.
+            tables: vec![table::supported_encodings_table()],
         }],
         ..Default::default()
     }
@@ -199,7 +203,9 @@ fn main() {
 
     let mut worker = Worker::new();
     scalar::register(&mut worker);
-    table::register(&mut worker);
+    // The `supported_encodings` table function is auto-registered by
+    // `set_catalog` via the `CatTable::with_function` entry in
+    // `catalog_metadata`, so no separate `register_table` call is needed.
     worker.set_catalog(catalog_metadata(&catalog_name));
     worker.run();
 }
