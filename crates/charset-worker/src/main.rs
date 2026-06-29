@@ -73,23 +73,46 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             ),
             (
                 "vgi.doc_md".to_string(),
-                "# charset — character-encoding detection & transcoding\n\n\
-                 A VGI worker that brings encoding detection and UTF-8 transcoding (including \
-                 mojibake repair) to DuckDB/SQL over Apache Arrow. Detection uses Mozilla's \
-                 `chardetng` (the Firefox heuristic); decoding/encoding uses `encoding_rs` (the \
-                 WHATWG codec library).\n\n\
-                 ## When to use\n\n\
-                 Reach for this worker when ingesting text of unknown or mixed provenance: \
-                 CSV/log/email dumps in legacy code pages, columns that arrive double-encoded \
-                 (mojibake), or bytes you need to export back to a system that expects a specific \
-                 codec.\n\n\
-                 ## Surface\n\n\
-                 - **Scalars:** `detect_encoding`, `detect_confidence`, `is_valid_utf8`, \
-                 `to_utf8`, `to_utf8_from`, `transcode`, `fix_mojibake`, `charset_version`.\n\
-                 - **Table:** `supported_encodings`.\n\n\
+                "# charset — detect text encoding and transcode to UTF-8 in SQL\n\n\
+                 Detect the character encoding of raw bytes and transcode legacy or \
+                 mojibake-garbled text into clean UTF-8 directly in DuckDB SQL — no Python \
+                 preprocessing step and no manual `iconv` passes.\n\n\
+                 ## What it does\n\n\
+                 `charset` is a [VGI](https://query.farm) worker that adds character-encoding \
+                 detection and UTF-8 transcoding to DuckDB over Apache Arrow. It is built for \
+                 data engineers and analysts wrangling text of unknown or mixed provenance: CSV \
+                 and log dumps in legacy Windows code pages, scraped HTML, email archives, and \
+                 columns that arrived double-encoded — the classic `CafÃ©`-instead-of-`Café` \
+                 mojibake. Rather than shelling out to external tools, you detect, repair, and \
+                 normalize encodings inline with ordinary SQL queries.\n\n\
+                 ## How it works\n\n\
+                 Encoding detection is powered by Mozilla's \
+                 [`chardetng`](https://github.com/hsivonen/chardetng) \
+                 ([docs](https://docs.rs/chardetng)), the same heuristic Firefox applies to \
+                 unlabelled legacy text. Decoding and encoding use \
+                 [`encoding_rs`](https://github.com/hsivonen/encoding_rs) \
+                 ([docs](https://docs.rs/encoding_rs)), the pure-Rust implementation of the \
+                 [WHATWG Encoding Standard](https://encoding.spec.whatwg.org/) that Firefox \
+                 ships for every web-platform codec. A byte-order-mark (BOM) check runs first; \
+                 undecodable bytes within a known encoding become the U+FFFD replacement \
+                 character rather than raising an error, while an unknown encoding *label* is \
+                 rejected so typos surface immediately.\n\n\
+                 ## Functions and use cases\n\n\
+                 - `detect_encoding(bytes)` guesses the source encoding label, and \
+                 `detect_confidence(bytes)` scores that guess on `[0, 1]` — pair them before \
+                 trusting a detection on short or ambiguous input.\n\
+                 - `to_utf8(bytes)` auto-detects and decodes to UTF-8, while \
+                 `to_utf8_from(bytes, label)` decodes with an explicit codec such as \
+                 `'shift_jis'` or `'windows-1252'`.\n\
+                 - `transcode(text, label)` encodes UTF-8 back into a legacy codec's bytes for \
+                 export, and `fix_mojibake(text)` repairs double-encoded text such as `CafÃ©` \
+                 into `Café`.\n\
+                 - `is_valid_utf8(bytes)` tests whether a BLOB is already valid UTF-8, the \
+                 `supported_encodings()` table function enumerates every accepted encoding \
+                 label, and `charset_version()` returns the worker version.\n\n\
                  ## Notes\n\n\
-                 Empty/NULL input yields NULL. An unknown encoding *label* raises an error; \
-                 undecodable *bytes* within a known encoding become U+FFFD rather than failing."
+                 Empty or NULL input yields NULL everywhere. Detection is heuristic, so \
+                 confidence-check short or ambiguous samples before relying on the result."
                     .to_string(),
             ),
             ("vgi.author".to_string(), "Query.Farm".to_string()),
