@@ -97,22 +97,15 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                  undecodable bytes within a known encoding become the U+FFFD replacement \
                  character rather than raising an error, while an unknown encoding *label* is \
                  rejected so typos surface immediately.\n\n\
-                 ## Functions and use cases\n\n\
-                 - `detect_encoding(bytes)` guesses the source encoding label, and \
-                 `detect_confidence(bytes)` scores that guess on `[0, 1]` — pair them before \
-                 trusting a detection on short or ambiguous input.\n\
-                 - `to_utf8(bytes)` auto-detects and decodes to UTF-8, while \
-                 `to_utf8_from(bytes, label)` decodes with an explicit codec such as \
-                 `'shift_jis'` or `'windows-1252'`.\n\
-                 - `transcode(text, label)` encodes UTF-8 back into a legacy codec's bytes for \
-                 export, and `fix_mojibake(text)` repairs double-encoded text such as `CafÃ©` \
-                 into `Café`.\n\
-                 - `is_valid_utf8(bytes)` tests whether a BLOB is already valid UTF-8, the \
-                 `supported_encodings()` table function enumerates every accepted encoding \
-                 label, and `charset_version()` returns the worker version.\n\n\
-                 ## Notes\n\n\
-                 Empty or NULL input yields NULL everywhere. Detection is heuristic, so \
-                 confidence-check short or ambiguous samples before relying on the result."
+                 ## When to reach for it\n\n\
+                 Reach for `charset` whenever a text column's bytes are of unknown, mixed, or \
+                 legacy provenance: sniff the likely encoding and score how trustworthy that \
+                 guess is, decode legacy bytes to UTF-8 either automatically or with an explicit \
+                 codec label, re-encode UTF-8 back into a legacy codec for export, repair \
+                 double-encoded mojibake, and check whether bytes are already clean UTF-8. \
+                 Because detection is heuristic, confidence-check short or ambiguous samples \
+                 before relying on a result. Empty or NULL input yields NULL everywhere. List \
+                 the schema to discover the exact functions and their signatures."
                     .to_string(),
             ),
             ("vgi.author".to_string(), "Query.Farm".to_string()),
@@ -128,6 +121,47 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             (
                 "vgi.support_policy_url".to_string(),
                 "https://github.com/Query-farm/vgi-charset/blob/main/README.md".to_string(),
+            ),
+            // VGI152/VGI920: analyst tasks that `vgi-lint simulate` runs to measure
+            // how well an agent can actually use this worker. Kept BLOB-literal-free
+            // (nested transcode/casts) so they are robust across DuckDB versions.
+            (
+                "vgi.agent_test_tasks".to_string(),
+                "[\
+                 {\"name\":\"detect-utf8\",\
+                 \"prompt\":\"What encoding does this worker detect for the UTF-8 byte \
+                 representation of the text 'café'? Return only the single detected encoding \
+                 label as one column.\",\
+                 \"reference_sql\":\"SELECT charset.main.detect_encoding(charset.main.transcode('café', 'utf-8'));\",\
+                 \"ignore_column_names\":true},\
+                 {\"name\":\"detect-windows-1252\",\
+                 \"prompt\":\"What encoding does this worker detect for the windows-1252 byte \
+                 representation of the text 'café'? Return only the single detected encoding \
+                 label as one column.\",\
+                 \"reference_sql\":\"SELECT charset.main.detect_encoding(charset.main.transcode('café', 'windows-1252'));\",\
+                 \"ignore_column_names\":true},\
+                 {\"name\":\"decode-legacy\",\
+                 \"prompt\":\"Take the windows-1252 byte encoding of 'café' and decode it back into \
+                 UTF-8 text.\",\
+                 \"reference_sql\":\"SELECT charset.main.to_utf8(charset.main.transcode('café', 'windows-1252'));\",\
+                 \"ignore_column_names\":true},\
+                 {\"name\":\"fix-mojibake\",\
+                 \"prompt\":\"Repair the double-encoded mojibake string 'CafÃ©' into correct \
+                 UTF-8.\",\
+                 \"reference_sql\":\"SELECT charset.main.fix_mojibake('CafÃ©');\",\
+                 \"ignore_column_names\":true},\
+                 {\"name\":\"is-valid-utf8\",\
+                 \"prompt\":\"Treating the ASCII text 'hello' as raw bytes, does this worker \
+                 consider them valid UTF-8? Return only the single boolean result as one \
+                 column.\",\
+                 \"reference_sql\":\"SELECT charset.main.is_valid_utf8('hello'::BLOB);\",\
+                 \"ignore_column_names\":true},\
+                 {\"name\":\"count-encodings\",\
+                 \"prompt\":\"How many distinct character encodings does this worker support?\",\
+                 \"reference_sql\":\"SELECT count(*) FROM charset.main.supported_encodings();\",\
+                 \"ignore_column_names\":true}\
+                 ]"
+                    .to_string(),
             ),
         ],
         source_url: Some("https://github.com/Query-farm/vgi-charset".to_string()),
@@ -153,6 +187,22 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                     "topic".to_string(),
                     "encoding-detection-and-transcoding".to_string(),
                 ),
+                // VGI413 category registry: each object carries a `vgi.category`
+                // (set via meta::object_tags) naming one of these, in listing order.
+                (
+                    "vgi.categories".to_string(),
+                    "[\
+                     {\"name\":\"Detection\",\"description\":\"Identify the character encoding \
+                     of raw bytes, score confidence in the guess, and test for valid UTF-8.\"},\
+                     {\"name\":\"Decoding\",\"description\":\"Turn legacy or unlabelled bytes \
+                     into clean UTF-8, auto-detected or with an explicit codec label.\"},\
+                     {\"name\":\"Encoding & Repair\",\"description\":\"Encode UTF-8 back into a \
+                     legacy codec's bytes and repair double-encoded mojibake.\"},\
+                     {\"name\":\"Discovery\",\"description\":\"Enumerate the supported encoding \
+                     labels and report the worker version.\"}\
+                     ]"
+                        .to_string(),
+                ),
                 (
                     "vgi.doc_llm".to_string(),
                     "The `main` schema of the charset worker. It exposes character-encoding \
@@ -166,19 +216,14 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 (
                     "vgi.doc_md".to_string(),
                     "## charset.main\n\n\
-                     Character-encoding detection and UTF-8 transcoding functions over Apache \
-                     Arrow.\n\n\
-                     ### Functions\n\n\
-                     | function | purpose |\n\
-                     |---|---|\n\
-                     | `detect_encoding(bytes)` | guess the source encoding label |\n\
-                     | `detect_confidence(bytes)` | `[0,1]` confidence in that guess |\n\
-                     | `is_valid_utf8(bytes)` | is the BLOB already UTF-8? |\n\
-                     | `to_utf8(bytes)` | auto-detect + decode to UTF-8 |\n\
-                     | `to_utf8_from(bytes, label)` | decode with an explicit codec |\n\
-                     | `transcode(text, label)` | encode UTF-8 into a codec's bytes |\n\
-                     | `fix_mojibake(text)` | repair double-encoded text |\n\
-                     | `supported_encodings()` | list accepted encoding labels |\n\n\
+                     Character-encoding detection and UTF-8 transcoding over Apache Arrow. \
+                     The `main` schema groups its functions into detection (identify an \
+                     encoding and score confidence), decoding (turn legacy or unlabelled bytes \
+                     into clean UTF-8), encoding and repair (write UTF-8 back into a legacy \
+                     codec and fix double-encoded mojibake), and discovery (enumerate supported \
+                     encodings). Every function is catalog-qualified as \
+                     `charset.main.<fn>(...)` and operates row-wise; list the schema to see the \
+                     available objects and their signatures.\n\n\
                      ### Usage\n\n\
                      ```sql\n\
                      SELECT charset.main.to_utf8('\\x63\\x61\\x66\\xE9'::BLOB); -- 'café'\n\

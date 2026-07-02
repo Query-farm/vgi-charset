@@ -90,6 +90,7 @@ impl TableFunction for SupportedEncodings {
              ```",
             "supported encodings, list encodings, available codecs, encoding catalog, \
              discovery, what encodings, WHATWG, encoding_rs, labels",
+            "Discovery",
         );
         tags.push((
             "vgi.result_columns_md".into(),

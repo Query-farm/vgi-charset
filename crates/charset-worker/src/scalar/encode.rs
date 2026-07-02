@@ -66,6 +66,7 @@ impl ScalarFunction for Transcode {
                  ```",
                 "transcode, encode, to bytes, export encoding, windows-1252, latin-1, \
                  shift_jis, legacy encoding, utf-8 to bytes, re-encode",
+                "Encoding & Repair",
             ),
             ..Default::default()
         }
@@ -158,6 +159,7 @@ impl ScalarFunction for FixMojibake {
                  ```",
                 "fix mojibake, repair mojibake, garbled text, double encoding, \
                  unmangle, latin-1 as utf-8, mangled characters, clean text, demojibake",
+                "Encoding & Repair",
             ),
             ..Default::default()
         }

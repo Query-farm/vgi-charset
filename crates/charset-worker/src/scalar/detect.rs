@@ -62,6 +62,7 @@ impl ScalarFunction for DetectEncoding {
                  ```",
                 "detect encoding, charset detection, guess encoding, chardetng, BOM, \
                  sniff encoding, identify encoding, windows-1252, shift_jis, utf-8",
+                "Detection",
             ),
             ..Default::default()
         }
@@ -142,6 +143,7 @@ impl ScalarFunction for DetectConfidence {
                  ```",
                 "detection confidence, encoding confidence, score, reliability, certainty, \
                  chardetng, replacement characters, lossless decode",
+                "Detection",
             ),
             ..Default::default()
         }
@@ -211,6 +213,7 @@ impl ScalarFunction for IsValidUtf8 {
                  ```",
                 "valid utf-8, is utf8, well-formed, utf-8 check, validate encoding, \
                  byte validity, malformed bytes",
+                "Detection",
             ),
             ..Default::default()
         }

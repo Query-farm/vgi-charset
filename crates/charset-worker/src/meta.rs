@@ -32,17 +32,21 @@ pub fn keywords_json(comma_separated: &str) -> String {
 /// Build the standard per-object discovery/description tags.
 ///
 /// `keywords` is supplied as a convenient comma-separated string and serialized
-/// to the required JSON-array form for `vgi.keywords`.
+/// to the required JSON-array form for `vgi.keywords`. `category` names one of
+/// the schema's `vgi.categories` (VGI413), surfaced as `vgi.category` so the
+/// object joins the worker's navigation/listing sections.
 pub fn object_tags(
     title: &str,
     doc_llm: &str,
     doc_md: &str,
     keywords: &str,
+    category: &str,
 ) -> Vec<(String, String)> {
     vec![
         ("vgi.title".to_string(), title.to_string()),
         ("vgi.doc_llm".to_string(), doc_llm.to_string()),
         ("vgi.doc_md".to_string(), doc_md.to_string()),
         ("vgi.keywords".to_string(), keywords_json(keywords)),
+        ("vgi.category".to_string(), category.to_string()),
     ]
 }

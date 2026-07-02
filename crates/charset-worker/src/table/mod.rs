@@ -62,6 +62,8 @@ pub fn supported_encodings_table() -> CatTable {
         ("domain".to_string(), "text-processing".to_string()),
         ("category".to_string(), "discovery".to_string()),
         ("topic".to_string(), "encoding-catalog".to_string()),
+        // VGI413: name one of the schema's `vgi.categories`.
+        ("vgi.category".to_string(), "Discovery".to_string()),
         (
             "vgi.example_queries".to_string(),
             r#"[

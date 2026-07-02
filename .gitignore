@@ -2,3 +2,4 @@
 /build
 **/*.rs.bk
 .DS_Store
+.vgi-*-cache.json

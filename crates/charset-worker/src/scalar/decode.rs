@@ -64,6 +64,7 @@ impl ScalarFunction for ToUtf8 {
                  ```",
                 "to utf8, decode, convert to utf-8, auto decode, bytes to text, \
                  normalize encoding, clean text, detected encoding",
+                "Decoding",
             ),
             ..Default::default()
         }
@@ -148,6 +149,7 @@ impl ScalarFunction for ToUtf8From {
                  ```",
                 "to utf8 from, decode with encoding, explicit codec, shift_jis, windows-1252, \
                  latin-1, known encoding, force encoding",
+                "Decoding",
             ),
             ..Default::default()
         }
