@@ -169,9 +169,9 @@ impl ScalarFunction for ToUtf8From {
                 "encoding",
                 1,
                 "varchar",
-                "The source encoding label to decode the bytes with, e.g. 'shift_jis', \
-                 'windows-1252', or 'iso-8859-1' (see supported_encodings()). An unknown \
-                 label raises an error.",
+                "The source encoding label to decode the bytes with — any canonical codec \
+                 name the worker accepts, such as shift_jis. Call supported_encodings() for \
+                 the full set of accepted labels. An unknown label raises an error.",
             ),
         ]
     }

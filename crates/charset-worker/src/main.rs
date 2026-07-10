@@ -159,6 +159,23 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                  {\"name\":\"count-encodings\",\
                  \"prompt\":\"How many distinct character encodings does this worker support?\",\
                  \"reference_sql\":\"SELECT count(*) FROM charset.main.supported_encodings();\",\
+                 \"ignore_column_names\":true},\
+                 {\"name\":\"confidence-threshold\",\
+                 \"prompt\":\"Does this worker report full confidence — a score of exactly 1.0 — \
+                 for the UTF-8 byte representation of the text 'hello'? Return only a single \
+                 boolean value as one column.\",\
+                 \"reference_sql\":\"SELECT charset.main.detect_confidence(charset.main.transcode('hello', 'utf-8')) = 1.0;\",\
+                 \"ignore_column_names\":true},\
+                 {\"name\":\"decode-explicit-label\",\
+                 \"prompt\":\"Using the explicit-codec decode function (not auto-detection), decode \
+                 the windows-1252 byte representation of 'café' by naming the codec \
+                 'windows-1252'. Return the decoded text.\",\
+                 \"reference_sql\":\"SELECT charset.main.to_utf8_from(charset.main.transcode('café', 'windows-1252'), 'windows-1252');\",\
+                 \"ignore_column_names\":true},\
+                 {\"name\":\"worker-version-present\",\
+                 \"prompt\":\"Does this worker expose its own version string, and is that string \
+                 non-empty? Return only a single boolean value as one column.\",\
+                 \"reference_sql\":\"SELECT length(charset.main.charset_version()) > 0;\",\
                  \"ignore_column_names\":true}\
                  ]"
                     .to_string(),

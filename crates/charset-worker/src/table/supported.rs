@@ -84,22 +84,15 @@ impl TableFunction for SupportedEncodings {
              `encoding_rs` / WHATWG set of canonical encoding names.\n\n\
              **Returns:** one row per encoding, with a single `label` column.\n\n\
              **When to use:** to discover which labels are valid inputs to `to_utf8_from` and \
-             `transcode`, or to populate a picker of supported codecs.\n\n\
-             ```sql\n\
-             SELECT label FROM charset.main.supported_encodings() ORDER BY label LIMIT 5;\n\
-             ```",
+             `transcode`, or to populate a picker of supported codecs. The example queries \
+             show how to browse and count the available labels.",
             "supported encodings, list encodings, available codecs, encoding catalog, \
              discovery, what encodings, WHATWG, encoding_rs, labels",
             "Discovery",
         );
-        tags.push((
-            "vgi.result_columns_md".into(),
-            "| column | type | description |\n\
-             |---|---|---|\n\
-             | `label` | VARCHAR | A canonical encoding label accepted by `to_utf8_from` and \
-             `transcode`, e.g. `UTF-8`, `windows-1252`, `Shift_JIS`. |"
-                .into(),
-        ));
+        // The single `label` column is documented on the backing catalog table
+        // (see `table::supported_encodings_table`), which is what the linter reads
+        // for the result schema — no per-function result-columns tag is needed.
         tags.push(("vgi.executable_examples".into(), EXECUTABLE_EXAMPLES.into()));
         FunctionMetadata {
             description: "List every encoding label the worker accepts (the encoding_rs / WHATWG \
