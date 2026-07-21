@@ -69,7 +69,9 @@ Scalars (positional-only):
 | `transcode` | `transcode(text VARCHAR, to_encoding VARCHAR) -> BLOB` | Encode a UTF-8 string into the named encoding (export). **ERROR** on unknown label; NULL for NULL. |
 | `is_valid_utf8` | `is_valid_utf8(bytes BLOB) -> BOOLEAN` | Already valid UTF-8? NULL for NULL. |
 | `fix_mojibake` | `fix_mojibake(text VARCHAR) -> VARCHAR` | Repair double-encoded mojibake; no-ops when it can't improve. NULL for NULL. |
-| `charset_version` | `charset_version() -> VARCHAR` | Worker version. |
+
+The worker build version is exposed as the catalog's `implementation_version` (read it
+from `vgi_catalogs()`), not as a scalar function.
 
 Table function:
 

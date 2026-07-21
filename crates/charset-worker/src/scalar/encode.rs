@@ -13,10 +13,7 @@ use std::sync::Arc;
 use arrow_array::builder::{BinaryBuilder, StringBuilder};
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::DataType;
-use vgi::{
-    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
-    ScalarFunction,
-};
+use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::text_str;
@@ -37,24 +34,17 @@ impl ScalarFunction for Transcode {
                           unknown label; NULL for NULL input."
                 .into(),
             return_type: Some(DataType::Binary),
-            examples: vec![FunctionExample {
-                sql: "SELECT charset.main.transcode('café', 'windows-1252');".into(),
-                description: "Encode a UTF-8 string into windows-1252 bytes for export to a \
-                              legacy system."
-                    .into(),
-                expected_output: None,
-            }],
             tags: crate::meta::object_tags(
                 "Transcode Text to Encoding",
                 "Encode a UTF-8 string into the bytes of a named legacy encoding (returned as a \
-                 BLOB) so it can be exported to a system that expects that codec, e.g. \
+                 `BLOB`) so it can be exported to a system that expects that codec, e.g. \
                  transcode('café', 'windows-1252'). Characters the target encoding cannot \
                  represent are emitted as HTML numeric references per encoding_rs. Raises an \
                  error if the encoding label is unknown; returns NULL for NULL input.",
                 "## transcode\n\n\
                  Encodes a UTF-8 string into the bytes of a named legacy encoding, returned as a \
                  `BLOB`, so it can be exported to a system that expects that codec.\n\n\
-                 **Arguments:** `text` (UTF-8 VARCHAR) and `to_encoding` (target codec label, \
+                 **Arguments:** `text` (UTF-8 `VARCHAR`) and `to_encoding` (target codec label, \
                  e.g. `windows-1252`, `shift_jis`).\n\n\
                  **Behaviour:** characters the target encoding cannot represent are emitted as \
                  HTML numeric references (per `encoding_rs`) rather than dropped. An unknown \
@@ -67,6 +57,10 @@ impl ScalarFunction for Transcode {
                 "transcode, encode, to bytes, export encoding, windows-1252, latin-1, \
                  shift_jis, legacy encoding, utf-8 to bytes, re-encode",
                 "Encoding & Repair",
+                &[(
+                    "Encode a UTF-8 string into windows-1252 bytes for export to a legacy system.",
+                    "SELECT charset.main.transcode('café', 'windows-1252');",
+                )],
             ),
             ..Default::default()
         }
@@ -131,13 +125,6 @@ impl ScalarFunction for FixMojibake {
                           can't improve the text. NULL for NULL input."
                 .into(),
             return_type: Some(DataType::Utf8),
-            examples: vec![FunctionExample {
-                sql: "SELECT charset.main.fix_mojibake('CafÃ©');".into(),
-                description: "Repair classic double-encoded mojibake, turning 'CafÃ©' back into \
-                              'Café'."
-                    .into(),
-                expected_output: None,
-            }],
             tags: crate::meta::object_tags(
                 "Repair Mojibake Text",
                 "Repair the classic double-encoding mojibake where UTF-8 text was mistakenly \
@@ -160,6 +147,10 @@ impl ScalarFunction for FixMojibake {
                 "fix mojibake, repair mojibake, garbled text, double encoding, \
                  unmangle, latin-1 as utf-8, mangled characters, clean text, demojibake",
                 "Encoding & Repair",
+                &[(
+                    "Repair classic double-encoded mojibake, turning 'CafÃ©' back into 'Café'.",
+                    "SELECT charset.main.fix_mojibake('CafÃ©');",
+                )],
             ),
             ..Default::default()
         }

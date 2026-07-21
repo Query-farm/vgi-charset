@@ -89,6 +89,10 @@ impl TableFunction for SupportedEncodings {
             "supported encodings, list encodings, available codecs, encoding catalog, \
              discovery, what encodings, WHATWG, encoding_rs, labels",
             "Discovery",
+            // Examples for this object live in the backing catalog table's
+            // `vgi.example_queries` (see `table::supported_encodings_table`) and
+            // in `vgi.executable_examples` below, so none are passed here.
+            &[],
         );
         // The single `label` column is documented on the backing catalog table
         // (see `table::supported_encodings_table`), which is what the linter reads

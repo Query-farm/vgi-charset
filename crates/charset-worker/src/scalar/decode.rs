@@ -13,10 +13,7 @@ use std::sync::Arc;
 use arrow_array::builder::StringBuilder;
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::DataType;
-use vgi::{
-    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
-    ScalarFunction,
-};
+use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::{blob_bytes, text_str};
@@ -35,16 +32,9 @@ impl ScalarFunction for ToUtf8 {
                           (U+FFFD for undecodable bytes). NULL for empty/NULL input."
                 .into(),
             return_type: Some(DataType::Utf8),
-            examples: vec![FunctionExample {
-                sql: "SELECT charset.main.to_utf8('\\x63\\x61\\x66\\xE9'::BLOB);".into(),
-                description: "Auto-detect and decode windows-1252 bytes to the UTF-8 string \
-                              \"café\"."
-                    .into(),
-                expected_output: None,
-            }],
             tags: crate::meta::object_tags(
                 "Decode Bytes to UTF-8",
-                "Auto-detect the encoding of a BLOB of text bytes and decode it to a UTF-8 \
+                "Auto-detect the encoding of a `BLOB` of text bytes and decode it to a UTF-8 \
                  string. Undecodable bytes within the detected encoding become the U+FFFD \
                  replacement character rather than an error. Returns NULL for empty or NULL \
                  input. Use to_utf8_from when you already know the source encoding.",
@@ -65,6 +55,10 @@ impl ScalarFunction for ToUtf8 {
                 "to utf8, decode, convert to utf-8, auto decode, bytes to text, \
                  normalize encoding, clean text, detected encoding",
                 "Decoding",
+                &[(
+                    "Auto-detect and decode windows-1252 bytes to the UTF-8 string \"café\".",
+                    "SELECT charset.main.to_utf8('\\x63\\x61\\x66\\xE9'::BLOB);",
+                )],
             ),
             ..Default::default()
         }
@@ -118,17 +112,9 @@ impl ScalarFunction for ToUtf8From {
                           NULL for NULL bytes."
                 .into(),
             return_type: Some(DataType::Utf8),
-            examples: vec![FunctionExample {
-                sql: "SELECT charset.main.to_utf8_from('\\x93\\xFA\\x96\\x7B'::BLOB, 'shift_jis');"
-                    .into(),
-                description: "Decode Shift-JIS bytes to UTF-8 using an explicit codec label \
-                              (returns \"日本\")."
-                    .into(),
-                expected_output: None,
-            }],
             tags: crate::meta::object_tags(
                 "Decode Bytes With Explicit Encoding",
-                "Decode a BLOB of text bytes to a UTF-8 string using an explicit encoding label \
+                "Decode a `BLOB` of text bytes to a UTF-8 string using an explicit encoding label \
                  you supply (e.g. 'shift_jis', 'windows-1252'), with no auto-detection. Raises \
                  an error if the label names an encoding the worker does not recognise; \
                  undecodable bytes within a known encoding become U+FFFD. Returns NULL for NULL \
@@ -136,7 +122,7 @@ impl ScalarFunction for ToUtf8From {
                 "## to_utf8_from\n\n\
                  Decodes a `BLOB` of text bytes to a UTF-8 string using an **explicit** encoding \
                  label you supply — no auto-detection.\n\n\
-                 **Arguments:** `bytes` (the BLOB) and `encoding` (a codec label such as \
+                 **Arguments:** `bytes` (the `BLOB`) and `encoding` (a codec label such as \
                  `shift_jis`, `windows-1252`, or `iso-8859-1`). Call `supported_encodings()` to \
                  see the accepted labels.\n\n\
                  **Errors & nulls:** an unknown label raises an error (the caller named a codec \
@@ -150,6 +136,11 @@ impl ScalarFunction for ToUtf8From {
                 "to utf8 from, decode with encoding, explicit codec, shift_jis, windows-1252, \
                  latin-1, known encoding, force encoding",
                 "Decoding",
+                &[(
+                    "Decode Shift-JIS bytes to UTF-8 using an explicit codec label (returns \
+                     \"日本\").",
+                    "SELECT charset.main.to_utf8_from('\\x93\\xFA\\x96\\x7B'::BLOB, 'shift_jis');",
+                )],
             ),
             ..Default::default()
         }

@@ -31,7 +31,9 @@ mod table;
 use vgi::catalog::{CatSchema, CatalogModel};
 use vgi::Worker;
 
-/// Worker version string, surfaced by `charset_version()`.
+/// Worker version string, surfaced to discovery as the catalog's
+/// `implementation_version` (readable from `vgi_catalogs()` without spending a
+/// query, and it can't drift from the running build).
 pub fn version() -> &'static str {
     env!("CARGO_PKG_VERSION")
 }
@@ -104,8 +106,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                  codec label, re-encode UTF-8 back into a legacy codec for export, repair \
                  double-encoded mojibake, and check whether bytes are already clean UTF-8. \
                  Because detection is heuristic, confidence-check short or ambiguous samples \
-                 before relying on a result. Empty or NULL input yields NULL everywhere. List \
-                 the schema to discover the exact functions and their signatures."
+                 before relying on a result. Empty or NULL input yields NULL everywhere."
                     .to_string(),
             ),
             ("vgi.author".to_string(), "Query.Farm".to_string()),
@@ -171,17 +172,16 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                  the windows-1252 byte representation of 'café' by naming the codec \
                  'windows-1252'. Return the decoded text.\",\
                  \"reference_sql\":\"SELECT charset.main.to_utf8_from(charset.main.transcode('café', 'windows-1252'), 'windows-1252');\",\
-                 \"ignore_column_names\":true},\
-                 {\"name\":\"worker-version-present\",\
-                 \"prompt\":\"Does this worker expose its own version string, and is that string \
-                 non-empty? Return only a single boolean value as one column.\",\
-                 \"reference_sql\":\"SELECT length(charset.main.charset_version()) > 0;\",\
                  \"ignore_column_names\":true}\
                  ]"
                     .to_string(),
             ),
         ],
         source_url: Some("https://github.com/Query-farm/vgi-charset".to_string()),
+        // Worker build version, surfaced via `vgi_catalogs().implementation_version`
+        // so an agent can read it from discovery without a dedicated function call
+        // (replaces the retired `charset_version()` scalar — VGI328).
+        implementation_version: Some(version().to_string()),
         schemas: vec![CatSchema {
             name: "main".to_string(),
             comment: Some(
@@ -216,7 +216,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                      {\"name\":\"Encoding & Repair\",\"description\":\"Encode UTF-8 back into a \
                      legacy codec's bytes and repair double-encoded mojibake.\"},\
                      {\"name\":\"Discovery\",\"description\":\"Enumerate the supported encoding \
-                     labels and report the worker version.\"}\
+                     labels the worker accepts.\"}\
                      ]"
                         .to_string(),
                 ),
@@ -239,25 +239,48 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                      into clean UTF-8), encoding and repair (write UTF-8 back into a legacy \
                      codec and fix double-encoded mojibake), and discovery (enumerate supported \
                      encodings). Every function is catalog-qualified as \
-                     `charset.main.<fn>(...)` and operates row-wise; list the schema to see the \
-                     available objects and their signatures.\n\n\
+                     `charset.main.<fn>(...)` and operates row-wise.\n\n\
                      ### Usage\n\n\
                      ```sql\n\
                      SELECT charset.main.to_utf8('\\x63\\x61\\x66\\xE9'::BLOB); -- 'café'\n\
                      ```"
                     .to_string(),
                 ),
-                // VGI506 representative example queries for the schema.
+                // VGI506/VGI515 representative example queries for the schema, each
+                // a described {"description","sql"} object.
                 (
                     "vgi.example_queries".to_string(),
-                    "SELECT charset.main.detect_encoding('\\x63\\x61\\x66\\xE9'::BLOB);\n\
-                     SELECT charset.main.to_utf8('\\x63\\x61\\x66\\xE9'::BLOB);\n\
-                     SELECT charset.main.to_utf8_from('\\x93\\xFA\\x96\\x7B'::BLOB, 'shift_jis');\n\
-                     SELECT charset.main.transcode('café', 'windows-1252');\n\
-                     SELECT charset.main.fix_mojibake('CafÃ©');\n\
-                     SELECT charset.main.is_valid_utf8('\\x63\\x61\\x66\\xC3\\xA9'::BLOB);\n\
-                     SELECT * FROM charset.main.supported_encodings() LIMIT 5;"
-                        .to_string(),
+                    meta::example_queries_json(&[
+                        (
+                            "Detect the character encoding of windows-1252 bytes for \"café\".",
+                            "SELECT charset.main.detect_encoding('\\x63\\x61\\x66\\xE9'::BLOB);",
+                        ),
+                        (
+                            "Auto-detect and decode windows-1252 bytes to a UTF-8 string.",
+                            "SELECT charset.main.to_utf8('\\x63\\x61\\x66\\xE9'::BLOB);",
+                        ),
+                        (
+                            "Decode Shift-JIS bytes to UTF-8 with an explicit codec label.",
+                            "SELECT charset.main.to_utf8_from('\\x93\\xFA\\x96\\x7B'::BLOB, \
+                             'shift_jis');",
+                        ),
+                        (
+                            "Encode a UTF-8 string into windows-1252 bytes for export.",
+                            "SELECT charset.main.transcode('café', 'windows-1252');",
+                        ),
+                        (
+                            "Repair double-encoded mojibake back to clean UTF-8.",
+                            "SELECT charset.main.fix_mojibake('CafÃ©');",
+                        ),
+                        (
+                            "Check whether bytes are already valid UTF-8.",
+                            "SELECT charset.main.is_valid_utf8('\\x63\\x61\\x66\\xC3\\xA9'::BLOB);",
+                        ),
+                        (
+                            "List the first few supported encoding labels.",
+                            "SELECT * FROM charset.main.supported_encodings() LIMIT 5;",
+                        ),
+                    ]),
                 ),
             ],
             views: Vec::new(),
