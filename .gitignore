@@ -3,3 +3,6 @@
 **/*.rs.bk
 .DS_Store
 .vgi-*-cache.json
+
+# Browser build output (wasm/build.sh)
+/wasm/dist

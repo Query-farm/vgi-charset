@@ -8,17 +8,34 @@ authors.workspace = true
 repository.workspace = true
 description = "VGI worker bringing character-encoding detection and UTF-8 transcoding (mojibake repair) to DuckDB over Apache Arrow"
 
+[lib]
+name = "charset_worker"
+path = "src/lib.rs"
+
 [[bin]]
 name = "charset-worker"
 path = "src/main.rs"
 
 [dependencies]
-vgi.workspace = true
-vgi-rpc.workspace = true
 arrow-array.workspace = true
 arrow-buffer.workspace = true
 arrow-schema.workspace = true
 chardetng.workspace = true
 encoding_rs.workspace = true
 log = "0.4"
+
+# --- Native ---------------------------------------------------------------
+# The SDK's real default features (sqlite + transport-http) plus the native HTTP
+# transport and the env_logger stderr sink — unchanged from before the wasm split.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+vgi = { workspace = true, features = ["sqlite", "transport-http"] }
+vgi-rpc = { workspace = true, features = ["http"] }
 env_logger = "0.11"
+
+# --- wasm32 ---------------------------------------------------------------
+# No sqlite (C) and no HTTP transport (tokio/mio/axum); the bincode stream codec
+# is what the SAB byte-channel transport needs. No env_logger — logs go through
+# the browser console via the SDK.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+vgi = { workspace = true }
+vgi-rpc = { workspace = true, features = ["stream-codec"] }
