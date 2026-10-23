@@ -148,4 +148,9 @@ impl TableProducer for SupportedProducer {
                 .map_err(|e| RpcError::runtime_error(e.to_string()))?,
         ))
     }
+    // Single batch: every encoding label is emitted in one RecordBatch, so
+    // there is no cursor to resume across HTTP turns.
+    fn resume_supported(&self) -> bool {
+        false
+    }
 }

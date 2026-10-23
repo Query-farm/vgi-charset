@@ -129,7 +129,9 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 "https://github.com/Query-farm/vgi-charset/blob/main/README.md".to_string(),
             ),
             // VGI152/VGI920: analyst tasks that `vgi-lint simulate` runs to measure
-            // how well an agent can actually use this worker. Kept BLOB-literal-free
+            // how well an agent can actually use this worker. Only name + prompt are
+            // published here (VGI416); the private reference_sql graders live in
+            // vgi-agent-tests.yaml at the repo root. Kept BLOB-literal-free
             // (nested transcode/casts) so they are robust across DuckDB versions.
             (
                 "vgi.agent_test_tasks".to_string(),
@@ -137,47 +139,31 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                  {\"name\":\"detect-utf8\",\
                  \"prompt\":\"What encoding does this worker detect for the UTF-8 byte \
                  representation of the text 'café'? Return only the single detected encoding \
-                 label as one column.\",\
-                 \"reference_sql\":\"SELECT charset.main.detect_encoding(charset.main.transcode('café', 'utf-8'));\",\
-                 \"ignore_column_names\":true},\
+                 label as one column.\"},\
                  {\"name\":\"detect-windows-1252\",\
                  \"prompt\":\"What encoding does this worker detect for the windows-1252 byte \
                  representation of the text 'café'? Return only the single detected encoding \
-                 label as one column.\",\
-                 \"reference_sql\":\"SELECT charset.main.detect_encoding(charset.main.transcode('café', 'windows-1252'));\",\
-                 \"ignore_column_names\":true},\
+                 label as one column.\"},\
                  {\"name\":\"decode-legacy\",\
                  \"prompt\":\"Take the windows-1252 byte encoding of 'café' and decode it back into \
-                 UTF-8 text.\",\
-                 \"reference_sql\":\"SELECT charset.main.to_utf8(charset.main.transcode('café', 'windows-1252'));\",\
-                 \"ignore_column_names\":true},\
+                 UTF-8 text.\"},\
                  {\"name\":\"fix-mojibake\",\
                  \"prompt\":\"Repair the double-encoded mojibake string 'CafÃ©' into correct \
-                 UTF-8.\",\
-                 \"reference_sql\":\"SELECT charset.main.fix_mojibake('CafÃ©');\",\
-                 \"ignore_column_names\":true},\
+                 UTF-8.\"},\
                  {\"name\":\"is-valid-utf8\",\
                  \"prompt\":\"Treating the ASCII text 'hello' as raw bytes, does this worker \
                  consider them valid UTF-8? Return only the single boolean result as one \
-                 column.\",\
-                 \"reference_sql\":\"SELECT charset.main.is_valid_utf8('hello'::BLOB);\",\
-                 \"ignore_column_names\":true},\
+                 column.\"},\
                  {\"name\":\"count-encodings\",\
-                 \"prompt\":\"How many distinct character encodings does this worker support?\",\
-                 \"reference_sql\":\"SELECT count(*) FROM charset.main.supported_encodings();\",\
-                 \"ignore_column_names\":true},\
+                 \"prompt\":\"How many distinct character encodings does this worker support?\"},\
                  {\"name\":\"confidence-threshold\",\
                  \"prompt\":\"Does this worker report full confidence — a score of exactly 1.0 — \
                  for the UTF-8 byte representation of the text 'hello'? Return only a single \
-                 boolean value as one column.\",\
-                 \"reference_sql\":\"SELECT charset.main.detect_confidence(charset.main.transcode('hello', 'utf-8')) = 1.0;\",\
-                 \"ignore_column_names\":true},\
+                 boolean value as one column.\"},\
                  {\"name\":\"decode-explicit-label\",\
                  \"prompt\":\"Using the explicit-codec decode function (not auto-detection), decode \
                  the windows-1252 byte representation of 'café' by naming the codec \
-                 'windows-1252'. Return the decoded text.\",\
-                 \"reference_sql\":\"SELECT charset.main.to_utf8_from(charset.main.transcode('café', 'windows-1252'), 'windows-1252');\",\
-                 \"ignore_column_names\":true}\
+                 'windows-1252'. Return the decoded text.\"}\
                  ]"
                     .to_string(),
             ),
@@ -189,6 +175,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
         implementation_version: Some(version().to_string()),
         schemas: vec![CatSchema {
             name: "main".to_string(),
+            path: Vec::new(),
             comment: Some(
                 "Character-encoding detection and UTF-8 transcoding functions.".to_string(),
             ),

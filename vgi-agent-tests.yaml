@@ -1,0 +1,32 @@
+# Private graders for the agent-suitability suite (`vgi-lint simulate`).
+#
+# The prompts are published in the catalog's vgi.agent_test_tasks tag
+# (crates/charset-worker/src/lib.rs); the answers live here, keyed by task name, so the
+# agent being graded never sees them. vgi-lint discovers this file in the
+# directory it runs from (the repo root in CI).
+
+tasks:
+  - name: "detect-utf8"
+    reference_sql: "SELECT charset.main.detect_encoding(charset.main.transcode('café', 'utf-8'));"
+    ignore_column_names: true
+  - name: "detect-windows-1252"
+    reference_sql: "SELECT charset.main.detect_encoding(charset.main.transcode('café', 'windows-1252'));"
+    ignore_column_names: true
+  - name: "decode-legacy"
+    reference_sql: "SELECT charset.main.to_utf8(charset.main.transcode('café', 'windows-1252'));"
+    ignore_column_names: true
+  - name: "fix-mojibake"
+    reference_sql: "SELECT charset.main.fix_mojibake('CafÃ©');"
+    ignore_column_names: true
+  - name: "is-valid-utf8"
+    reference_sql: "SELECT charset.main.is_valid_utf8('hello'::BLOB);"
+    ignore_column_names: true
+  - name: "count-encodings"
+    reference_sql: "SELECT count(*) FROM charset.main.supported_encodings();"
+    ignore_column_names: true
+  - name: "confidence-threshold"
+    reference_sql: "SELECT charset.main.detect_confidence(charset.main.transcode('hello', 'utf-8')) = 1.0;"
+    ignore_column_names: true
+  - name: "decode-explicit-label"
+    reference_sql: "SELECT charset.main.to_utf8_from(charset.main.transcode('café', 'windows-1252'), 'windows-1252');"
+    ignore_column_names: true
