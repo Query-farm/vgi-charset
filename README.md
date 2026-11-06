@@ -117,7 +117,7 @@ make fmt        # rustfmt the workspace
 ```
 
 The SQL E2E suite uses [`haybarn-unittest`](https://query.farm)
-(`uv tool install haybarn-unittest`).
+(`uv tool install --prerelease allow 'haybarn-unittest>=2.0.0rc11,<2.1'`; haybarn 2.0).
 
 ## License
 

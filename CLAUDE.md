@@ -19,7 +19,7 @@ Rust 1.86 (the workspace MSRV).
 ## Layout
 
 ```
-Cargo.toml                          workspace; pins vgi = "0.46", arrow 60, chardetng, encoding_rs
+Cargo.toml                          workspace; pins vgi = "0.49.2" (VGI protocol 3.1, haybarn 2.0), arrow 59, chardetng, encoding_rs
 crates/charset-worker/
   src/main.rs                       Worker::new(); registers scalars + table
   src/lib.rs                        lib target re-exporting `charset` for integration tests

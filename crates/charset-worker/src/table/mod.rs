@@ -5,6 +5,7 @@ mod supported;
 use std::sync::Arc;
 
 use vgi::catalog::CatTable;
+use vgi::constraints::{constraint_record, ConstraintKind, ConstraintRecord};
 
 /// Build the catalog `CatTable` that exposes `supported_encodings` as a regular
 /// table (`SELECT * FROM charset.main.supported_encodings`, no parentheses —
@@ -27,11 +28,27 @@ pub fn supported_encodings_table() -> CatTable {
         ),
         Some(crate::charset::supported_encodings().len() as i64),
     );
-    // `label` (column 0) is the unique row identity — declare it the primary key
-    // and the table's NOT NULL/unique constraint.
-    t.primary_key = vec![vec![0]];
-    t.not_null = vec![0];
-    t.unique = vec![vec![0]];
+    // `label` is the unique row identity — declare it the primary key and the
+    // table's NOT NULL/unique constraint, as canonical vgi.v3 constraint records
+    // (columns by name; ENFORCED so the extension reads them).
+    t.constraints = [
+        ("supported_encodings.pk", ConstraintKind::PrimaryKey),
+        (
+            "supported_encodings.label.not_null",
+            ConstraintKind::NotNull,
+        ),
+        ("supported_encodings.label.unique", ConstraintKind::Unique),
+    ]
+    .into_iter()
+    .map(|(id, kind)| {
+        constraint_record(
+            &ConstraintRecord::new(&["main"], "supported_encodings", id, kind)
+                .with_columns(&[&["label"]])
+                .enforced(),
+        )
+        .expect("valid constraint record")
+    })
+    .collect();
     t.tags = vec![
         (
             "vgi.title".to_string(),
