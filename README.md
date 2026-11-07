@@ -13,7 +13,7 @@ and **UTF-8 transcoding** (mojibake repair) to DuckDB over Apache Arrow.
 
 ```sql
 LOAD vgi;
-ATTACH 'charset' (TYPE vgi, LOCATION './target/release/charset-worker');
+ATTACH 'charset' (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-charset@v0.2.0');
 SET search_path = 'charset.main';
 
 SELECT detect_encoding('\x63\x61\x66\xE9'::BLOB);    -- 'windows-1252'
@@ -25,6 +25,39 @@ SELECT fix_mojibake('CafÃ©');                         -- 'Café'
 SELECT is_valid_utf8('café'::BLOB);                  -- true
 SELECT * FROM supported_encodings();                 -- discovery: label
 ```
+
+## Quick start
+
+Every [GitHub release](https://github.com/Query-farm/vgi-charset/releases) ships a prebuilt worker binary. The `vgi` extension downloads the one for your platform, checks its SHA-256 and caches it, so there is nothing to install besides DuckDB:
+
+```sql
+INSTALL vgi FROM community;
+LOAD vgi;
+
+ATTACH 'charset' AS charset (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-charset@v0.2.0');
+
+-- Detect the character encoding of windows-1252 bytes for "café".
+SELECT charset.main.detect_encoding('\x63\x61\x66\xE9'::BLOB);
+
+-- Auto-detect and decode windows-1252 bytes to a UTF-8 string.
+SELECT charset.main.to_utf8('\x63\x61\x66\xE9'::BLOB);
+```
+
+Prebuilt binaries cover macOS (Apple silicon), Linux (x86-64 and arm64). `github-auto://` needs an explicit release tag; change `@v0.2.0` to move to a newer release.
+
+### Other ways to run it
+
+- **Docker** (the image bundles the worker; needs a container runtime):
+
+  ```sql
+  ATTACH 'charset' AS charset (TYPE vgi, LOCATION 'docker://ghcr.io/query-farm/vgi-charset:0.2.0');
+  ```
+
+- **Manual download.** Download the archive for your platform from the [releases page](https://github.com/Query-farm/vgi-charset/releases), verify it against its `.sha256` file (a cosign `.cosign.bundle` is published alongside), unpack it, and set `LOCATION` to the path of the extracted worker executable.
+
+### Build from source
+
+To build the worker yourself, see [Development](#development).
 
 ## What it does
 
