@@ -140,6 +140,7 @@ pub mod test_support {
             projection_ids: None,
             pushdown_filters: None,
             join_keys: Vec::new(),
+            transaction_opaque_data: None,
             storage: None,
             order_by_column: None,
             order_by_direction: None,
