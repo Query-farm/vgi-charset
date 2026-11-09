@@ -477,7 +477,7 @@ dependencies = [
 
 [[package]]
 name = "charset-wasm"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "charset-worker",
  "vgi",
@@ -485,7 +485,7 @@ dependencies = [
 
 [[package]]
 name = "charset-worker"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
