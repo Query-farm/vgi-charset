@@ -54,9 +54,11 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             "Character-encoding detection and UTF-8 transcoding (mojibake repair).".to_string(),
         ),
         tags: vec![
+            ("vgi.title".to_string(), "Character Encodings".to_string()),
             (
-                "vgi.title".to_string(),
-                "Character Encoding Detection & Transcoding".to_string(),
+                "vgi.subtitle".to_string(),
+                "Detect text encodings, convert legacy bytes to and from UTF-8, and repair mojibake."
+                    .to_string(),
             ),
             (
                 "vgi.keywords".to_string(),
@@ -180,7 +182,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 "Character-encoding detection and UTF-8 transcoding functions.".to_string(),
             ),
             tags: vec![
-                ("vgi.title".to_string(), "Charset — main".to_string()),
+                ("vgi.title".to_string(), "Charset functions".to_string()),
                 (
                     "vgi.keywords".to_string(),
                     meta::keywords_json(
