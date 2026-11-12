@@ -28,6 +28,12 @@ pub fn supported_encodings_table() -> CatTable {
         ),
         Some(crate::charset::supported_encodings().len() as i64),
     );
+    // Protocol 3.3 makes a table's scan function `table_only` (hidden from
+    // duckdb_functions() and not callable as `supported_encodings()`) unless
+    // the table opts in. The `supported_encodings()` call form is part of the
+    // documented surface (README, scalar docs, SQL tests), so keep it callable
+    // alongside the bare-table form.
+    t.expose_scan = true;
     // `label` is the unique row identity — declare it the primary key and the
     // table's NOT NULL/unique constraint, as canonical vgi.v3 constraint records
     // (columns by name; ENFORCED so the extension reads them).
