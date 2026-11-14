@@ -113,6 +113,50 @@ SELECT count(*) FROM supported_encodings() WHERE label = 'Shift_JIS';
 ----
 1
 
+# transcode to UTF-16 emits UTF-16 (encoding_rs alone would emit UTF-8), no BOM.
+query II
+SELECT transcode('hé', 'UTF-16LE') = '\x68\x00\xE9\x00'::BLOB, transcode('hé', 'utf-16be') = '\x00\x68\x00\xE9'::BLOB;
+----
+true	true
+
+# ...and round-trips through to_utf8_from.
+query T
+SELECT to_utf8_from(transcode('naïve café', 'UTF-16LE'), 'UTF-16LE');
+----
+naïve café
+
+# replacement is decode-only: transcode to it is an ERROR, not silent UTF-8.
+statement error
+SELECT transcode('x', 'replacement');
+----
+decode-only
+
+# Composed: encodings that store 'naïve café' losslessly (supported_encodings +
+# transcode + to_utf8_from).
+query T
+SELECT label FROM supported_encodings WHERE label <> 'replacement' AND to_utf8_from(transcode('naïve café', label), label) = 'naïve café' ORDER BY label;
+----
+ISO-8859-10
+ISO-8859-14
+ISO-8859-15
+ISO-8859-16
+ISO-8859-3
+UTF-16BE
+UTF-16LE
+UTF-8
+gb18030
+macintosh
+windows-1252
+windows-1254
+windows-1256
+windows-1258
+
+# Composed: reproduce UTF-8-read-as-1252 mojibake, then repair it.
+query TT
+SELECT to_utf8_from(transcode(o, 'utf-8'), 'windows-1252') AS garbled, fix_mojibake(garbled) FROM (VALUES ('Ünïcödé')) AS t(o);
+----
+ÃœnÃ¯cÃ¶dÃ©	Ünïcödé
+
 statement ok
 USE memory;
 

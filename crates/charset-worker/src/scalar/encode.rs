@@ -47,8 +47,10 @@ impl ScalarFunction for Transcode {
                  **Arguments:** `text` (UTF-8 `VARCHAR`) and `to_encoding` (target codec label, \
                  e.g. `windows-1252`, `shift_jis`).\n\n\
                  **Behaviour:** characters the target encoding cannot represent are emitted as \
-                 HTML numeric references (per `encoding_rs`) rather than dropped. An unknown \
-                 encoding label raises an error; `NULL` input returns `NULL`.\n\n\
+                 HTML numeric references (per `encoding_rs`) rather than dropped; `UTF-16LE` / \
+                 `UTF-16BE` are lossless (no BOM is written). An unknown encoding label, or the \
+                 decode-only `replacement` encoding, raises an error; `NULL` input returns \
+                 `NULL`.\n\n\
                  **When to use:** the inverse of `to_utf8`/`to_utf8_from` — producing legacy \
                  bytes for downstream systems or file exports.\n\n\
                  ```sql\n\
@@ -57,10 +59,14 @@ impl ScalarFunction for Transcode {
                 "transcode, encode, to bytes, export encoding, windows-1252, latin-1, \
                  shift_jis, legacy encoding, utf-8 to bytes, re-encode",
                 "Encoding & Repair",
-                &[(
-                    "Encode a UTF-8 string into windows-1252 bytes for export to a legacy system.",
-                    "SELECT charset.main.transcode('café', 'windows-1252');",
-                )],
+                &[
+                    (
+                        "Encode a UTF-8 string into windows-1252 bytes for export to a legacy \
+                         system.",
+                        "SELECT charset.main.transcode('café', 'windows-1252');",
+                    ),
+                    crate::examples::EXPORT_AUDIT_1252,
+                ],
             ),
             ..Default::default()
         }
@@ -81,8 +87,8 @@ impl ScalarFunction for Transcode {
                 "varchar",
                 "The target encoding label to encode `text` into, e.g. 'windows-1252' or \
                  'shift_jis' (see supported_encodings()). Characters the encoding cannot \
-                 represent are emitted as HTML character references; an unknown label \
-                 raises an error.",
+                 represent are emitted as HTML character references; an unknown label, or \
+                 the decode-only 'replacement' encoding, raises an error.",
             ),
         ]
     }
@@ -147,10 +153,14 @@ impl ScalarFunction for FixMojibake {
                 "fix mojibake, repair mojibake, garbled text, double encoding, \
                  unmangle, latin-1 as utf-8, mangled characters, clean text, demojibake",
                 "Encoding & Repair",
-                &[(
-                    "Repair classic double-encoded mojibake, turning 'CafÃ©' back into 'Café'.",
-                    "SELECT charset.main.fix_mojibake('CafÃ©');",
-                )],
+                &[
+                    (
+                        "Repair classic double-encoded mojibake, turning 'CafÃ©' back into \
+                         'Café'.",
+                        "SELECT charset.main.fix_mojibake('CafÃ©');",
+                    ),
+                    crate::examples::MOJIBAKE_ROUND_TRIP,
+                ],
             ),
             ..Default::default()
         }

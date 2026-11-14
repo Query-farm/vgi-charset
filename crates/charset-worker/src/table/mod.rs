@@ -89,17 +89,17 @@ pub fn supported_encodings_table() -> CatTable {
         ("vgi.category".to_string(), "Discovery".to_string()),
         (
             "vgi.example_queries".to_string(),
-            r#"[
-  {
-    "description": "List the first few supported encoding labels.",
-    "sql": "SELECT label FROM charset.main.supported_encodings ORDER BY label LIMIT 5"
-  },
-  {
-    "description": "Count how many encoding labels the worker accepts.",
-    "sql": "SELECT count(*) AS n FROM charset.main.supported_encodings"
-  }
-]"#
-            .to_string(),
+            crate::meta::example_queries_json(&[
+                (
+                    "List the first few supported encoding labels.",
+                    "SELECT label FROM charset.main.supported_encodings ORDER BY label LIMIT 5",
+                ),
+                (
+                    "Count how many encoding labels the worker accepts.",
+                    "SELECT count(*) AS n FROM charset.main.supported_encodings",
+                ),
+                crate::examples::LOSSLESS_ENCODINGS,
+            ]),
         ),
     ];
     t

@@ -107,15 +107,34 @@ pub fn to_utf8_from(bytes: &[u8], label: &str) -> Result<String, String> {
 }
 
 /// Encode a UTF-8 string into the named encoding's bytes (for export). Returns
-/// `Err` if the label is unknown.
+/// `Err` if the label is unknown, or names the decode-only `replacement`
+/// encoding (which has no encoder).
 ///
 /// Per `encoding_rs`, characters the target encoding cannot represent are
 /// emitted as HTML numeric character references (e.g. `&#1234;`) for the legacy
 /// single-/multi-byte encodings; the UTF-8/UTF-16 encoders are lossless. This
 /// matches what a browser does when form-submitting in a legacy encoding.
+///
+/// UTF-16LE/BE are encoded here rather than by `encoding_rs`: following the
+/// WHATWG "output encoding" rule, `Encoding::encode` silently emits **UTF-8**
+/// for a UTF-16 (or `replacement`) target, so `transcode(t, 'UTF-16LE')` would
+/// return bytes that don't decode back as UTF-16. No BOM is written — the label
+/// already fixes the byte order.
 pub fn transcode(text: &str, label: &str) -> Result<Vec<u8>, String> {
     let enc = Encoding::for_label(label.as_bytes())
         .ok_or_else(|| format!("unknown encoding label: {label:?}"))?;
+    if enc == encoding_rs::UTF_16LE {
+        return Ok(text.encode_utf16().flat_map(u16::to_le_bytes).collect());
+    }
+    if enc == encoding_rs::UTF_16BE {
+        return Ok(text.encode_utf16().flat_map(u16::to_be_bytes).collect());
+    }
+    if enc == encoding_rs::REPLACEMENT {
+        return Err(format!(
+            "encoding label {label:?} names the decode-only \"replacement\" encoding, \
+             which has no encoder"
+        ));
+    }
     let (bytes, _used, _had_unmappable) = enc.encode(text);
     Ok(bytes.into_owned())
 }
@@ -299,6 +318,34 @@ mod tests {
         let bytes = transcode("café", "windows-1252").unwrap();
         assert_eq!(bytes, CAFE_1252);
         assert_eq!(to_utf8_from(&bytes, "windows-1252").unwrap(), "café");
+    }
+
+    #[test]
+    fn transcode_utf16_emits_utf16_not_utf8() {
+        // encoding_rs's encoder maps UTF-16 targets to UTF-8; we must not.
+        assert_eq!(
+            transcode("hé", "UTF-16LE").unwrap(),
+            [b'h', 0x00, 0xE9, 0x00]
+        );
+        assert_eq!(
+            transcode("hé", "utf-16be").unwrap(),
+            [0x00, b'h', 0x00, 0xE9]
+        );
+        // Astral characters become surrogate pairs and round-trip.
+        for label in ["UTF-16LE", "UTF-16BE"] {
+            let text = "naïve café 😀";
+            let bytes = transcode(text, label).unwrap();
+            assert_eq!(to_utf8_from(&bytes, label).unwrap(), text);
+        }
+    }
+
+    #[test]
+    fn transcode_replacement_errors() {
+        // `replacement` is decode-only; encoding_rs would silently emit UTF-8.
+        let err = transcode("x", "replacement").unwrap_err();
+        assert!(err.contains("decode-only"), "{err}");
+        // A label aliasing it (iso-2022-kr) is rejected the same way.
+        assert!(transcode("x", "iso-2022-kr").is_err());
     }
 
     #[test]

@@ -53,11 +53,14 @@ impl ScalarFunction for DetectEncoding {
                 "detect encoding, charset detection, guess encoding, chardetng, BOM, \
                  sniff encoding, identify encoding, windows-1252, shift_jis, utf-8",
                 "Detection",
-                &[(
-                    "Detect the encoding of the bytes for \"café\" stored as windows-1252 \
-                     (returns 'windows-1252').",
-                    "SELECT charset.main.detect_encoding('\\x63\\x61\\x66\\xE9'::BLOB);",
-                )],
+                &[
+                    (
+                        "Detect the encoding of the bytes for \"café\" stored as windows-1252 \
+                         (returns 'windows-1252').",
+                        "SELECT charset.main.detect_encoding('\\x63\\x61\\x66\\xE9'::BLOB);",
+                    ),
+                    crate::examples::TRIAGE_MIXED_BYTES,
+                ],
             ),
             ..Default::default()
         }

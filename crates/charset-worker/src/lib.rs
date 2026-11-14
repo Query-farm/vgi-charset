@@ -29,6 +29,7 @@
 
 mod arrow_io;
 pub mod charset;
+mod examples;
 mod meta;
 mod scalar;
 mod table;
@@ -165,7 +166,18 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                  {\"name\":\"decode-explicit-label\",\
                  \"prompt\":\"Using the explicit-codec decode function (not auto-detection), decode \
                  the windows-1252 byte representation of 'café' by naming the codec \
-                 'windows-1252'. Return the decoded text.\"}\
+                 'windows-1252'. Return the decoded text.\"},\
+                 {\"name\":\"count-lossless-greek\",\
+                 \"prompt\":\"How many of this worker's supported encodings, not counting the \
+                 decode-only 'replacement' encoding, can encode the Greek word 'Ελληνικά' and \
+                 decode the resulting bytes back to exactly the same text? Return a single integer \
+                 count as one column.\"},\
+                 {\"name\":\"detect-decode-greek\",\
+                 \"prompt\":\"The Greek phrase 'Καλημέρα κόσμε' was saved as windows-1253 bytes \
+                 (produce those bytes with this worker). Without naming the codec, auto-detect the \
+                 encoding of those bytes and decode them back to UTF-8 text. Return one row with \
+                 two columns in this order: the detected encoding label (VARCHAR) and the decoded \
+                 text (VARCHAR).\"}\
                  ]"
                     .to_string(),
             ),
@@ -245,6 +257,10 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 (
                     "vgi.example_queries".to_string(),
                     meta::example_queries_json(&[
+                        examples::TRIAGE_MIXED_BYTES,
+                        examples::LOSSLESS_ENCODINGS,
+                        examples::EXPORT_AUDIT_1252,
+                        examples::MOJIBAKE_ROUND_TRIP,
                         (
                             "Detect the character encoding of windows-1252 bytes for \"café\".",
                             "SELECT charset.main.detect_encoding('\\x63\\x61\\x66\\xE9'::BLOB);",

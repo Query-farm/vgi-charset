@@ -30,3 +30,9 @@ tasks:
   - name: "decode-explicit-label"
     reference_sql: "SELECT charset.main.to_utf8_from(charset.main.transcode('café', 'windows-1252'), 'windows-1252');"
     ignore_column_names: true
+  - name: "count-lossless-greek"
+    reference_sql: "SELECT count(*) FROM charset.main.supported_encodings WHERE label <> 'replacement' AND charset.main.to_utf8_from(charset.main.transcode('Ελληνικά', label), label) = 'Ελληνικά';"
+    ignore_column_names: true
+  - name: "detect-decode-greek"
+    reference_sql: "SELECT charset.main.detect_encoding(b), charset.main.to_utf8(b) FROM (SELECT charset.main.transcode('Καλημέρα κόσμε', 'windows-1253') AS b);"
+    ignore_column_names: true

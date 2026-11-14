@@ -46,7 +46,12 @@ marshalling in `arrow_io.rs` + `scalar/*.rs` + `table/*.rs` (thin, harness-teste
 - **Decode** (`to_utf8`, `to_utf8_from`): `Encoding::decode`. Unknown explicit
   label → `Err` → DuckDB ERROR; undecodable bytes → U+FFFD (not an error).
 - **Encode** (`transcode`): `Encoding::encode` → BLOB; unmappable chars become
-  HTML numeric refs per encoding_rs.
+  HTML numeric refs per encoding_rs. Exception: `encoding_rs` encodes UTF-16
+  and `replacement` targets as **UTF-8** (WHATWG "output encoding"), so
+  UTF-16LE/BE are encoded by hand (no BOM) and `replacement` is an ERROR.
+- **Composed examples** live once in `src/examples.rs` and are referenced from
+  the schema list (`lib.rs`), the driving object's example list, and
+  `vgi.executable_examples`.
 - **fix_mojibake**: re-encode as Windows-1252, re-decode as UTF-8, accept only on
   strict reduction of mojibake markers; no-op otherwise. See `charset.rs`.
 

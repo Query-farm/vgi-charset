@@ -24,6 +24,12 @@ SELECT transcode('café', 'windows-1252');            -- BLOB \x63\x61\x66\xE9
 SELECT fix_mojibake('CafÃ©');                         -- 'Café'
 SELECT is_valid_utf8('café'::BLOB);                  -- true
 SELECT * FROM supported_encodings();                 -- discovery: label
+
+-- Compose them: which encodings can store 'naïve café' losslessly?
+SELECT label FROM supported_encodings
+WHERE label <> 'replacement'                         -- decode-only, no encoder
+  AND to_utf8_from(transcode('naïve café', label), label) = 'naïve café'
+ORDER BY label;                                      -- 14 labels, incl. windows-1252, UTF-16LE
 ```
 
 ## Quick start
@@ -124,7 +130,9 @@ Table function:
 `transcode` uses `encoding_rs`'s encoder. Characters the target encoding cannot
 represent are emitted as **HTML numeric character references** (e.g. `&#1234;`)
 for the legacy single-/multi-byte encodings — exactly what a browser does when
-form-submitting in a legacy encoding. The UTF-8 / UTF-16 encoders are lossless.
+form-submitting in a legacy encoding. The UTF-8 / UTF-16LE / UTF-16BE encoders
+are lossless (UTF-16 output carries no BOM; the label fixes the byte order). The
+WHATWG `replacement` encoding is decode-only, so `transcode` to it is an ERROR.
 
 ### The mojibake-fix heuristic
 
