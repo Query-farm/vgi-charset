@@ -147,6 +147,11 @@ Latin-1 / Windows-1252 and then re-stored as UTF-8 (so `é → Ã©`, `" → â�
 
 The strict-improvement gate stops it from mangling text that was never mojibake.
 
+## Python notebooks
+
+The [executed Haybarn notebooks](notebooks/README.md) compare encoding guesses,
+explicit decoding, mojibake repairs and export round trips with visible SQL and charts.
+
 ## Development
 
 ```sh
