@@ -288,7 +288,8 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                         ),
                         (
                             "List the first few supported encoding labels.",
-                            "SELECT * FROM charset.main.supported_encodings() LIMIT 5;",
+                            "SELECT label FROM charset.main.supported_encodings() ORDER BY label \
+                             LIMIT 5;",
                         ),
                     ]),
                 ),
