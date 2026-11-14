@@ -1,0 +1,53 @@
+{
+  "collector": "Haybarn 2.0.0rc11 actual engine catalog export",
+  "query": "SELECT * FROM duckdb_tables() WHERE database_name='charset'",
+  "captured_at": "2026-11-14T18:59:18.478855+00:00",
+  "columns": [
+    "database_name",
+    "database_oid",
+    "schema_name",
+    "schema_oid",
+    "table_name",
+    "table_oid",
+    "comment",
+    "tags",
+    "internal",
+    "temporary",
+    "has_primary_key",
+    "estimated_size",
+    "column_count",
+    "index_count",
+    "check_constraint_count",
+    "sql"
+  ],
+  "rows": [
+    [
+      "charset",
+      22592,
+      "main",
+      22734,
+      "supported_encodings",
+      22735,
+      "Every encoding label the worker accepts (the encoding_rs / WHATWG set of canonical encoding names).",
+      {
+        "category": "discovery",
+        "domain": "text-processing",
+        "topic": "encoding-catalog",
+        "vgi.category": "Discovery",
+        "vgi.doc_llm": "Every encoding label the worker accepts \u2014 the encoding_rs / WHATWG set of canonical encoding names. Query it to discover which labels are valid inputs to to_utf8_from and transcode.",
+        "vgi.doc_md": "# supported_encodings\n\nThe discovery table of every encoding label the worker accepts. One row per encoding, with a single `label` column (e.g. `UTF-8`, `windows-1252`, `Shift_JIS`). Use it to find valid encoding inputs for `to_utf8_from` and `transcode`.",
+        "vgi.example_queries": "[{\"description\":\"List the first few supported encoding labels.\",\"sql\":\"SELECT label FROM charset.main.supported_encodings ORDER BY label LIMIT 5\"},{\"description\":\"Count how many encoding labels the worker accepts.\",\"sql\":\"SELECT count(*) AS n FROM charset.main.supported_encodings\"},{\"description\":\"List the supported encodings that can store 'na\u00efve caf\u00e9' losslessly: encode it into each label with transcode, decode it back with to_utf8_from, and keep the labels whose round trip is exact (the decode-only 'replacement' encoding has no encoder, so it is skipped).\",\"sql\":\"SELECT label FROM charset.main.supported_encodings WHERE label <> 'replacement' AND charset.main.to_utf8_from(charset.main.transcode('na\u00efve caf\u00e9', label), label) = 'na\u00efve caf\u00e9' ORDER BY label\"}]",
+        "vgi.keywords": "[\"supported encodings\",\"list encodings\",\"available codecs\",\"encoding catalog\",\"discovery\",\"what encodings\",\"WHATWG\",\"encoding_rs\",\"labels\"]",
+        "vgi.title": "Supported Encodings Catalog"
+      },
+      false,
+      false,
+      true,
+      0,
+      1,
+      2,
+      0,
+      "CREATE TABLE supported_encodings(\"label\" VARCHAR, UNIQUE(\"label\"), PRIMARY KEY(\"label\"));"
+    ]
+  ]
+}

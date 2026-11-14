@@ -1,0 +1,13 @@
+{
+  "repository": "Query-farm/vgi-charset",
+  "released_tag": "v0.4.0",
+  "released_revision": "5fbe92216fb20b8a1aba409f6cdf18e2fa40b698",
+  "current_public_revision": "f9fc7042e298a9d3dda422df04d818e5de72c1c3",
+  "engine": "Haybarn 2.0.0rc11 / VGI e75482339d",
+  "released_launch": "github-auto://Query-farm/vgi-charset@v0.4.0",
+  "current_collection": "Separate locked current-public source build for catalog validation; analytical notebook uses only published native release.",
+  "current_root_lock_sha256": "53cc492f8bafde2e5f2f99139e0c916bac57f3fcf55d159293e7537ede810e4b",
+  "comparison": "The interfaces have identical 8 logical names and signatures. Current source changes the transcode implementation for UTF-16LE/BE output and rejects replacement encoding; those paths are outside the three selected export codecs. A real SQL probe returns 68C3A9 for transcode(hé,UTF-16LE) on release and 6800E900 on current source. Metadata/examples and tests also changed; other demonstrated decoding, detection, repair and legacy/UTF-8 export logic is unchanged. Interface coverage does not claim implementation equivalence or exhaustive codec tests.",
+  "data_isolation": "Both catalog probes and notebook connections use an empty temporary secret_directory and allow_persistent_secrets=False. Pure in-memory byte transformations; no authentication/write surfaces.",
+  "captured_at": "2026-11-14T19:06:22.942218+00:00"
+}

@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "repository": "Query-farm/vgi-charset",
+  "revision": "f9fc7042e298a9d3dda422df04d818e5de72c1c3",
+  "captured_at": "2026-11-14T19:06:22.942218+00:00",
+  "default_schema": "main",
+  "scope": "all_public_functions_and_tables",
+  "complete": true,
+  "evidence": [
+    {
+      "path": "coverage/current-functions.json",
+      "sha256": "97be25f38986a406b203cfd5a807c8e34ae3c83516b9ebb0457207345e1b70d0",
+      "description": "Complete actual worker-filtered duckdb_functions() export, including explicit empty view inventory."
+    },
+    {
+      "path": "coverage/current-tables.json",
+      "sha256": "695e9ba3a81ddf16e3e2964189ebddcf591b3c81d25cf737d9fe805eddcf0bd6",
+      "description": "Complete actual worker-filtered duckdb_tables() export, including explicit empty view inventory."
+    },
+    {
+      "path": "coverage/current-views.json",
+      "sha256": "b0f8b99661059c41986014abb40baea4332aa181f9b360f9f5933162d634693f",
+      "description": "Complete actual worker-filtered duckdb_views() export, including explicit empty view inventory."
+    },
+    {
+      "path": "coverage/current-database.json",
+      "sha256": "55bfbc10f72043631ceb97946a1e5492bddafeeb64e043e27b9fd5d49787ee38",
+      "description": "Actual attached catalog title, subtitle and description from duckdb_databases()."
+    },
+    {
+      "path": "coverage/catalog-provenance.json",
+      "sha256": "4ce8887c44fed213a843e78fba362373a9a606dde4d146b06d746d6a12a461eb",
+      "description": "Release/current identity and scoped behavior compatibility review."
+    },
+    {
+      "path": "coverage/release-limit-probe.json",
+      "sha256": "8ffa99d21bebb41998bf14ec903c1b4e639c27f8ca5e0794fa80ed1011fc6d70",
+      "description": "Actual released/current SQL results proving the separately documented UTF-16 export discrepancy."
+    }
+  ],
+  "objects": [
+    {
+      "schema": "main",
+      "name": "supported_encodings",
+      "kind": "function",
+      "signatures": [
+        "supported_encodings() -> TABLE(label VARCHAR)"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "to_utf8_from",
+      "kind": "function",
+      "signatures": [
+        "to_utf8_from(bytes BLOB, encoding VARCHAR) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "detect_confidence",
+      "kind": "function",
+      "signatures": [
+        "detect_confidence(bytes BLOB) -> DOUBLE"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "transcode",
+      "kind": "function",
+      "signatures": [
+        "transcode(text VARCHAR, to_encoding VARCHAR) -> BLOB"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "detect_encoding",
+      "kind": "function",
+      "signatures": [
+        "detect_encoding(bytes BLOB) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "fix_mojibake",
+      "kind": "function",
+      "signatures": [
+        "fix_mojibake(text VARCHAR) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "is_valid_utf8",
+      "kind": "function",
+      "signatures": [
+        "is_valid_utf8(bytes BLOB) -> BOOLEAN"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "to_utf8",
+      "kind": "function",
+      "signatures": [
+        "to_utf8(bytes BLOB) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "supported_encodings",
+      "kind": "table",
+      "signatures": [
+        "TABLE(label VARCHAR)"
+      ],
+      "authentication": "none",
+      "access": "read"
+    }
+  ]
+}

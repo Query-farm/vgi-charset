@@ -1,0 +1,592 @@
+{
+  "schema_version": 1,
+  "status": "met",
+  "meets_target": true,
+  "catalogs": {
+    "released": {
+      "catalog_status": "verified",
+      "revision": "v0.4.0",
+      "catalog_sha256": "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055",
+      "collection_reconciled": true,
+      "denominator": 8,
+      "observed_objects": 8,
+      "required": 8,
+      "verified_count": 8,
+      "candidate_count": 0,
+      "fraction": 1.0,
+      "meets_target": true,
+      "exact_runtime_count": 8,
+      "runtime_revisions": [
+        "v0.4.0"
+      ],
+      "covered": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "detect_confidence"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "detect_encoding"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "fix_mojibake"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "is_valid_utf8"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "supported_encodings"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "to_utf8"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "to_utf8_from"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "transcode"
+        }
+      ],
+      "uncovered": [],
+      "objects": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "detect_confidence",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "detect_confidence(bytes BLOB) -> DOUBLE"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "detect_encoding",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "detect_encoding(bytes BLOB) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "fix_mojibake",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "fix_mojibake(text VARCHAR) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "is_valid_utf8",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "is_valid_utf8(bytes BLOB) -> BOOLEAN"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "supported_encodings",
+          "kinds": [
+            "function",
+            "table"
+          ],
+          "signatures": [
+            "TABLE(label VARCHAR)",
+            "supported_encodings() -> TABLE(label VARCHAR)"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "to_utf8",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "to_utf8(bytes BLOB) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "to_utf8_from",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "to_utf8_from(bytes BLOB, encoding VARCHAR) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "transcode",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "transcode(text VARCHAR, to_encoding VARCHAR) -> BLOB"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        }
+      ],
+      "issues": []
+    },
+    "current": {
+      "catalog_status": "verified",
+      "revision": "f9fc7042e298a9d3dda422df04d818e5de72c1c3",
+      "catalog_sha256": "81660494356afceacfdf27a286e1d8d72b8febc40ed9b815d4c05e617dc98c47",
+      "collection_reconciled": true,
+      "denominator": 8,
+      "observed_objects": 8,
+      "required": 8,
+      "verified_count": 8,
+      "candidate_count": 0,
+      "fraction": 1.0,
+      "meets_target": true,
+      "exact_runtime_count": 0,
+      "runtime_revisions": [
+        "v0.4.0"
+      ],
+      "covered": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "detect_confidence"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "detect_encoding"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "fix_mojibake"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "is_valid_utf8"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "supported_encodings"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "to_utf8"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "to_utf8_from"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "transcode"
+        }
+      ],
+      "uncovered": [],
+      "objects": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "detect_confidence",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "detect_confidence(bytes BLOB) -> DOUBLE"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "detect_encoding",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "detect_encoding(bytes BLOB) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "fix_mojibake",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "fix_mojibake(text VARCHAR) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "is_valid_utf8",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "is_valid_utf8(bytes BLOB) -> BOOLEAN"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "supported_encodings",
+          "kinds": [
+            "function",
+            "table"
+          ],
+          "signatures": [
+            "TABLE(label VARCHAR)",
+            "supported_encodings() -> TABLE(label VARCHAR)"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "to_utf8",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "to_utf8(bytes BLOB) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "to_utf8_from",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "to_utf8_from(bytes BLOB, encoding VARCHAR) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "transcode",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "transcode(text VARCHAR, to_encoding VARCHAR) -> BLOB"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        }
+      ],
+      "issues": []
+    }
+  },
+  "interface_drift": {
+    "known": true,
+    "current_only": [],
+    "released_only": [],
+    "changed": []
+  },
+  "notebooks": {
+    "01_clean_bytes_wrong_words.ipynb": {
+      "verified": true,
+      "issues": []
+    }
+  },
+  "examples": [
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "supported_encodings"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "detect_encoding"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "detect_confidence"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "is_valid_utf8"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "to_utf8"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "to_utf8_from"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "fix_mojibake"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "transcode"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055"
+    }
+  ],
+  "issues": []
+}

@@ -150,7 +150,8 @@ The strict-improvement gate stops it from mangling text that was never mojibake.
 ## Python notebooks
 
 The [executed Haybarn notebooks](notebooks/README.md) compare encoding guesses,
-explicit decoding, mojibake repairs and export round trips with visible SQL and charts.
+explicit decoding, mojibake repairs and export round trips across all eight SQL surfaces,
+with shared Colab setup and SVG charts.
 
 ## Development
 

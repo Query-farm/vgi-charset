@@ -1,0 +1,302 @@
+{
+  "collector": "Haybarn 2.0.0rc11 actual engine catalog export",
+  "query": "SELECT * FROM duckdb_functions() WHERE database_name='charset'",
+  "captured_at": "2026-11-14T18:59:18.451666+00:00",
+  "columns": [
+    "database_name",
+    "database_oid",
+    "schema_name",
+    "function_name",
+    "alias_of",
+    "function_type",
+    "description",
+    "comment",
+    "tags",
+    "return_type",
+    "parameters",
+    "parameter_types",
+    "varargs",
+    "macro_definition",
+    "has_side_effects",
+    "internal",
+    "extension_name",
+    "function_oid",
+    "examples",
+    "stability",
+    "categories"
+  ],
+  "rows": [
+    [
+      "charset",
+      "22592",
+      "main",
+      "supported_encodings",
+      null,
+      "table",
+      "List every encoding label the worker accepts (the encoding_rs / WHATWG set of canonical names)",
+      null,
+      {
+        "vgi.category": "Discovery",
+        "vgi.doc_llm": "List every encoding label the worker accepts \u2014 the encoding_rs / WHATWG set of canonical encoding names. Use it to discover which labels are valid inputs to to_utf8_from and transcode.",
+        "vgi.doc_md": "## supported_encodings\n\nA discovery table that lists every encoding label the worker accepts \u2014 the `encoding_rs` / WHATWG set of canonical encoding names.\n\n**Returns:** one row per encoding, with a single `label` column.\n\n**When to use:** to discover which labels are valid inputs to `to_utf8_from` and `transcode`, or to populate a picker of supported codecs. The example queries show how to browse and count the available labels.",
+        "vgi.executable_examples": "[{\"description\":\"Detect the encoding of windows-1252 bytes for \\\"caf\u00e9\\\".\",\"sql\":\"SELECT charset.main.detect_encoding('\\\\x63\\\\x61\\\\x66\\\\xE9'::BLOB) AS encoding\"},{\"description\":\"Auto-detect and decode windows-1252 bytes to UTF-8.\",\"sql\":\"SELECT charset.main.to_utf8('\\\\x63\\\\x61\\\\x66\\\\xE9'::BLOB) AS text\"},{\"description\":\"Decode Shift-JIS bytes to UTF-8 with an explicit codec label.\",\"sql\":\"SELECT charset.main.to_utf8_from('\\\\x93\\\\xFA\\\\x96\\\\x7B'::BLOB, 'shift_jis') AS text\"},{\"description\":\"Encode a UTF-8 string into windows-1252 bytes for export.\",\"sql\":\"SELECT charset.main.transcode('caf\u00e9', 'windows-1252') AS bytes\"},{\"description\":\"Repair double-encoded mojibake back to clean UTF-8.\",\"sql\":\"SELECT charset.main.fix_mojibake('Caf\u00c3\u00a9') AS fixed\"},{\"description\":\"Check whether bytes are already valid UTF-8.\",\"sql\":\"SELECT charset.main.is_valid_utf8('\\\\x63\\\\x61\\\\x66\\\\xC3\\\\xA9'::BLOB) AS ok\"},{\"description\":\"List the first few supported encoding labels.\",\"sql\":\"SELECT label FROM charset.main.supported_encodings() ORDER BY label LIMIT 5\"},{\"description\":\"Triage a column of unlabelled bytes in mixed legacy encodings (produced here with transcode): detect each row's encoding and confidence, flag which rows are already UTF-8, and decode every row to UTF-8 text.\",\"sql\":\"WITH raw AS (SELECT id, charset.main.transcode(txt, enc) AS bytes FROM (VALUES (1, 'Gr\u00fc\u00dfe aus M\u00fcnchen', 'windows-1252'), (2, '\u041f\u0440\u0438\u0432\u0435\u0442, \u043a\u0430\u043a \u0434\u0435\u043b\u0430?', 'windows-1251'), (3, '\u3053\u3093\u306b\u3061\u306f\u4e16\u754c', 'shift_jis'), (4, 'na\u00efve caf\u00e9', 'utf-8')) AS t(id, txt, enc)) SELECT id, charset.main.detect_encoding(bytes) AS detected, charset.main.detect_confidence(bytes) AS confidence, charset.main.is_valid_utf8(bytes) AS already_utf8, charset.main.to_utf8(bytes) AS text FROM raw ORDER BY id\"},{\"description\":\"List the supported encodings that can store 'na\u00efve caf\u00e9' losslessly: encode it into each label with transcode, decode it back with to_utf8_from, and keep the labels whose round trip is exact (the decode-only 'replacement' encoding has no encoder, so it is skipped).\",\"sql\":\"SELECT label FROM charset.main.supported_encodings WHERE label <> 'replacement' AND charset.main.to_utf8_from(charset.main.transcode('na\u00efve caf\u00e9', label), label) = 'na\u00efve caf\u00e9' ORDER BY label\"},{\"description\":\"Reproduce double-encoding mojibake (UTF-8 bytes from transcode misread as windows-1252 by to_utf8_from) and show fix_mojibake restoring the original text.\",\"sql\":\"SELECT original, charset.main.to_utf8_from(charset.main.transcode(original, 'utf-8'), 'windows-1252') AS garbled, charset.main.fix_mojibake(garbled) AS repaired FROM (VALUES ('Caf\u00e9'), ('\u00dcn\u00efc\u00f6d\u00e9'), ('\u201csmart quotes\u201d \u2014 dash')) AS t(original) ORDER BY original\"}]",
+        "vgi.keywords": "[\"supported encodings\",\"list encodings\",\"available codecs\",\"encoding catalog\",\"discovery\",\"what encodings\",\"WHATWG\",\"encoding_rs\",\"labels\"]",
+        "vgi.title": "Supported Encodings Catalog"
+      },
+      null,
+      [],
+      [],
+      null,
+      null,
+      null,
+      true,
+      null,
+      22603,
+      [],
+      null,
+      []
+    ],
+    [
+      "charset",
+      "22592",
+      "main",
+      "to_utf8_from",
+      null,
+      "scalar",
+      "Decode text bytes using an EXPLICIT encoding label (no detection), e.g. to_utf8_from(b, 'shift_jis'). ERROR if the label is unknown; NULL for NULL bytes.",
+      null,
+      {
+        "vgi.category": "Decoding",
+        "vgi.doc_llm": "Decode a `BLOB` of text bytes to a UTF-8 string using an explicit encoding label you supply (e.g. 'shift_jis', 'windows-1252'), with no auto-detection. Raises an error if the label names an encoding the worker does not recognise; undecodable bytes within a known encoding become U+FFFD. Returns NULL for NULL input.",
+        "vgi.doc_md": "## to_utf8_from\n\nDecodes a `BLOB` of text bytes to a UTF-8 string using an **explicit** encoding label you supply \u2014 no auto-detection.\n\n**Arguments:** `bytes` (the `BLOB`) and `encoding` (a codec label such as `shift_jis`, `windows-1252`, or `iso-8859-1`). Call `supported_encodings()` to see the accepted labels.\n\n**Errors & nulls:** an unknown label raises an error (the caller named a codec that does not exist); undecodable bytes within a *known* encoding become `U+FFFD`; `NULL` input returns `NULL`.\n\n**When to use:** prefer this over `to_utf8` whenever the source encoding is known, to avoid detection mistakes.\n\n```sql\nSELECT charset.main.to_utf8_from('\\x93\\xFA\\x96\\x7B'::BLOB, 'shift_jis');\n```",
+        "vgi.example_queries": "[{\"description\":\"Decode Shift-JIS bytes to UTF-8 using an explicit codec label (returns \\\"\u65e5\u672c\\\").\",\"sql\":\"SELECT charset.main.to_utf8_from('\\\\x93\\\\xFA\\\\x96\\\\x7B'::BLOB, 'shift_jis');\"}]",
+        "vgi.keywords": "[\"to utf8 from\",\"decode with encoding\",\"explicit codec\",\"shift_jis\",\"windows-1252\",\"latin-1\",\"known encoding\",\"force encoding\"]",
+        "vgi.title": "Decode Bytes With Explicit Encoding"
+      },
+      "VARCHAR",
+      [
+        "bytes",
+        "encoding"
+      ],
+      [
+        "BLOB",
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22601,
+      [],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "charset",
+      "22592",
+      "main",
+      "detect_confidence",
+      null,
+      "scalar",
+      "A confidence proxy in [0,1] for the detected encoding, derived from whether the bytes decode losslessly (1.0) or required U+FFFD replacements (scaled down). NULL for empty/NULL input.",
+      null,
+      {
+        "vgi.category": "Detection",
+        "vgi.doc_llm": "Return a confidence proxy in the range [0, 1] for the encoding detected on a `BLOB` of text bytes. It is 1.0 when the bytes decode losslessly (or carry a BOM), and is scaled down by the fraction of U+FFFD replacement characters the decode produced. Returns NULL for empty or NULL input.",
+        "vgi.doc_md": "## detect_confidence\n\nScores how trustworthy the detected encoding of a `BLOB` is, on a `[0, 1]` scale.\n\n**How it works:** `chardetng` itself does not expose a probability, so this proxies confidence from the decode \u2014 `1.0` when the bytes decode losslessly (or carry a BOM), scaled down by the fraction of `U+FFFD` replacement characters the decode produced.\n\n**Returns:** a `DOUBLE` in `[0, 1]`; `NULL` for empty or `NULL` input.\n\n**Usage:** gate automated cleanup on a threshold so low-confidence guesses are flagged for review rather than silently transformed.\n\n```sql\nSELECT charset.main.detect_confidence('\\x63\\x61\\x66\\xE9'::BLOB); -- 1.0\n```",
+        "vgi.example_queries": "[{\"description\":\"Score how confidently the bytes for \\\"caf\u00e9\\\" decode under the detected encoding (1.0 when lossless).\",\"sql\":\"SELECT charset.main.detect_confidence('\\\\x63\\\\x61\\\\x66\\\\xE9'::BLOB);\"}]",
+        "vgi.keywords": "[\"detection confidence\",\"encoding confidence\",\"score\",\"reliability\",\"certainty\",\"chardetng\",\"replacement characters\",\"lossless decode\"]",
+        "vgi.title": "Detection Confidence Score"
+      },
+      "DOUBLE",
+      [
+        "bytes"
+      ],
+      [
+        "BLOB"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22596,
+      [],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "charset",
+      "22592",
+      "main",
+      "transcode",
+      null,
+      "scalar",
+      "Encode a UTF-8 string into the named encoding's bytes (BLOB) for export, e.g. transcode('caf\u00e9', 'windows-1252'). Unmappable chars follow encoding_rs (HTML numeric refs for legacy codecs). ERROR on unknown label; NULL for NULL input.",
+      null,
+      {
+        "vgi.category": "Encoding & Repair",
+        "vgi.doc_llm": "Encode a UTF-8 string into the bytes of a named legacy encoding (returned as a `BLOB`) so it can be exported to a system that expects that codec, e.g. transcode('caf\u00e9', 'windows-1252'). Characters the target encoding cannot represent are emitted as HTML numeric references per encoding_rs. Raises an error if the encoding label is unknown; returns NULL for NULL input.",
+        "vgi.doc_md": "## transcode\n\nEncodes a UTF-8 string into the bytes of a named legacy encoding, returned as a `BLOB`, so it can be exported to a system that expects that codec.\n\n**Arguments:** `text` (UTF-8 `VARCHAR`) and `to_encoding` (target codec label, e.g. `windows-1252`, `shift_jis`).\n\n**Behaviour:** characters the target encoding cannot represent are emitted as HTML numeric references (per `encoding_rs`) rather than dropped; `UTF-16LE` / `UTF-16BE` are lossless (no BOM is written). An unknown encoding label, or the decode-only `replacement` encoding, raises an error; `NULL` input returns `NULL`.\n\n**When to use:** the inverse of `to_utf8`/`to_utf8_from` \u2014 producing legacy bytes for downstream systems or file exports.\n\n```sql\nSELECT charset.main.transcode('caf\u00e9', 'windows-1252'); -- \\x63\\x61\\x66\\xE9\n```",
+        "vgi.example_queries": "[{\"description\":\"Encode a UTF-8 string into windows-1252 bytes for export to a legacy system.\",\"sql\":\"SELECT charset.main.transcode('caf\u00e9', 'windows-1252');\"},{\"description\":\"Before exporting names to a windows-1252 system, flag the ones that would not survive: encode each with transcode, decode the bytes back with to_utf8_from, and compare with the original.\",\"sql\":\"SELECT name, charset.main.to_utf8_from(charset.main.transcode(name, 'windows-1252'), 'windows-1252') = name AS fits_1252 FROM (VALUES ('Caf\u00e9 M\u00fcller'), ('\u0141\u00f3d\u017a'), ('\u6771\u4eac'), ('Smith')) AS t(name) ORDER BY name\"}]",
+        "vgi.keywords": "[\"transcode\",\"encode\",\"to bytes\",\"export encoding\",\"windows-1252\",\"latin-1\",\"shift_jis\",\"legacy encoding\",\"utf-8 to bytes\",\"re-encode\"]",
+        "vgi.title": "Transcode Text to Encoding"
+      },
+      "BLOB",
+      [
+        "text",
+        "to_encoding"
+      ],
+      [
+        "VARCHAR",
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22602,
+      [],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "charset",
+      "22592",
+      "main",
+      "detect_encoding",
+      null,
+      "scalar",
+      "Detect the character encoding of text bytes (BOM check, then the chardetng heuristic); returns the encoding label, e.g. 'UTF-8', 'windows-1252', 'Shift_JIS'. NULL for empty/NULL input.",
+      null,
+      {
+        "vgi.category": "Detection",
+        "vgi.doc_llm": "Detect the character encoding of a `BLOB` of raw text bytes and return its canonical label, e.g. 'UTF-8', 'windows-1252', or 'Shift_JIS'. It first checks for a byte-order mark, then falls back to the chardetng (Firefox) heuristic. Returns NULL for empty or NULL input.",
+        "vgi.doc_md": "## detect_encoding\n\nGuesses the character encoding of a `BLOB` of raw text bytes and returns its canonical label.\n\n**How it works:** a byte-order-mark check runs first; if there is no BOM, the `chardetng` (Firefox) heuristic inspects the whole buffer.\n\n**Returns:** a label such as `UTF-8`, `windows-1252`, or `Shift_JIS`; `NULL` for empty or `NULL` input.\n\n**Tip:** detection is statistical, so short or ambiguous input can be mis-guessed \u2014 combine with `detect_confidence` before trusting the result.\n\n```sql\nSELECT charset.main.detect_encoding('\\x63\\x61\\x66\\xE9'::BLOB); -- windows-1252\n```",
+        "vgi.example_queries": "[{\"description\":\"Detect the encoding of the bytes for \\\"caf\u00e9\\\" stored as windows-1252 (returns 'windows-1252').\",\"sql\":\"SELECT charset.main.detect_encoding('\\\\x63\\\\x61\\\\x66\\\\xE9'::BLOB);\"},{\"description\":\"Triage a column of unlabelled bytes in mixed legacy encodings (produced here with transcode): detect each row's encoding and confidence, flag which rows are already UTF-8, and decode every row to UTF-8 text.\",\"sql\":\"WITH raw AS (SELECT id, charset.main.transcode(txt, enc) AS bytes FROM (VALUES (1, 'Gr\u00fc\u00dfe aus M\u00fcnchen', 'windows-1252'), (2, '\u041f\u0440\u0438\u0432\u0435\u0442, \u043a\u0430\u043a \u0434\u0435\u043b\u0430?', 'windows-1251'), (3, '\u3053\u3093\u306b\u3061\u306f\u4e16\u754c', 'shift_jis'), (4, 'na\u00efve caf\u00e9', 'utf-8')) AS t(id, txt, enc)) SELECT id, charset.main.detect_encoding(bytes) AS detected, charset.main.detect_confidence(bytes) AS confidence, charset.main.is_valid_utf8(bytes) AS already_utf8, charset.main.to_utf8(bytes) AS text FROM raw ORDER BY id\"}]",
+        "vgi.keywords": "[\"detect encoding\",\"charset detection\",\"guess encoding\",\"chardetng\",\"BOM\",\"sniff encoding\",\"identify encoding\",\"windows-1252\",\"shift_jis\",\"utf-8\"]",
+        "vgi.title": "Detect Character Encoding"
+      },
+      "VARCHAR",
+      [
+        "bytes"
+      ],
+      [
+        "BLOB"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22597,
+      [],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "charset",
+      "22592",
+      "main",
+      "fix_mojibake",
+      null,
+      "scalar",
+      "Repair double-encoded mojibake (UTF-8 read as Latin-1/Windows-1252 then re-stored as UTF-8), e.g. 'Caf\u00c3\u00a9' -> 'Caf\u00e9'. No-ops when it can't improve the text. NULL for NULL input.",
+      null,
+      {
+        "vgi.category": "Encoding & Repair",
+        "vgi.doc_llm": "Repair the classic double-encoding mojibake where UTF-8 text was mistakenly read as Latin-1/Windows-1252 and then re-stored as UTF-8, turning garbled sequences like 'Caf\u00c3\u00a9' back into 'Caf\u00e9'. It only rewrites text when doing so strictly reduces mojibake markers, otherwise it returns the input unchanged. Returns NULL for NULL input.",
+        "vgi.doc_md": "## fix_mojibake\n\nRepairs the classic *mojibake* failure where UTF-8 text was mistakenly read as Latin-1/Windows-1252 and then re-stored as UTF-8, leaving garbled sequences like `Caf\u00c3\u00a9`.\n\n**How it works:** re-encodes the text as Windows-1252 and re-decodes it as UTF-8, accepting the result **only** when it strictly reduces the number of mojibake markers. Otherwise it returns the input unchanged, so clean text and non-mojibake garble pass through untouched.\n\n**Returns:** a `VARCHAR`; `NULL` for `NULL` input.\n\n```sql\nSELECT charset.main.fix_mojibake('Caf\u00c3\u00a9'); -- 'Caf\u00e9'\n```",
+        "vgi.example_queries": "[{\"description\":\"Repair classic double-encoded mojibake, turning 'Caf\u00c3\u00a9' back into 'Caf\u00e9'.\",\"sql\":\"SELECT charset.main.fix_mojibake('Caf\u00c3\u00a9');\"},{\"description\":\"Reproduce double-encoding mojibake (UTF-8 bytes from transcode misread as windows-1252 by to_utf8_from) and show fix_mojibake restoring the original text.\",\"sql\":\"SELECT original, charset.main.to_utf8_from(charset.main.transcode(original, 'utf-8'), 'windows-1252') AS garbled, charset.main.fix_mojibake(garbled) AS repaired FROM (VALUES ('Caf\u00e9'), ('\u00dcn\u00efc\u00f6d\u00e9'), ('\u201csmart quotes\u201d \u2014 dash')) AS t(original) ORDER BY original\"}]",
+        "vgi.keywords": "[\"fix mojibake\",\"repair mojibake\",\"garbled text\",\"double encoding\",\"unmangle\",\"latin-1 as utf-8\",\"mangled characters\",\"clean text\",\"demojibake\"]",
+        "vgi.title": "Repair Mojibake Text"
+      },
+      "VARCHAR",
+      [
+        "text"
+      ],
+      [
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22598,
+      [],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "charset",
+      "22592",
+      "main",
+      "is_valid_utf8",
+      null,
+      "scalar",
+      "Whether the bytes are already valid UTF-8. NULL for NULL input.",
+      null,
+      {
+        "vgi.category": "Detection",
+        "vgi.doc_llm": "Test whether a `BLOB` of bytes is already well-formed UTF-8, returning true or false. Use it to decide whether bytes need decoding/transcoding at all. An empty `BLOB` is valid UTF-8; NULL input returns NULL.",
+        "vgi.doc_md": "## is_valid_utf8\n\nTests whether a `BLOB` of bytes is already well-formed UTF-8.\n\n**Returns:** `BOOLEAN` \u2014 `true` when every byte forms a valid UTF-8 sequence, `false` otherwise. An empty `BLOB` is valid UTF-8; `NULL` input returns `NULL`.\n\n**When to use:** as a cheap pre-check to skip decoding/transcoding for data that is already clean, or to find rows that still need repair.\n\n```sql\nSELECT charset.main.is_valid_utf8('\\x63\\x61\\x66\\xC3\\xA9'::BLOB); -- true\n```",
+        "vgi.example_queries": "[{\"description\":\"Check whether a BLOB already holds valid UTF-8 (returns true).\",\"sql\":\"SELECT charset.main.is_valid_utf8('\\\\x63\\\\x61\\\\x66\\\\xC3\\\\xA9'::BLOB);\"}]",
+        "vgi.keywords": "[\"valid utf-8\",\"is utf8\",\"well-formed\",\"utf-8 check\",\"validate encoding\",\"byte validity\",\"malformed bytes\"]",
+        "vgi.title": "Is Valid UTF-8 Check"
+      },
+      "BOOLEAN",
+      [
+        "bytes"
+      ],
+      [
+        "BLOB"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22599,
+      [],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "charset",
+      "22592",
+      "main",
+      "to_utf8",
+      null,
+      "scalar",
+      "Detect the encoding of text bytes and decode to a UTF-8 string (U+FFFD for undecodable bytes). NULL for empty/NULL input.",
+      null,
+      {
+        "vgi.category": "Decoding",
+        "vgi.doc_llm": "Auto-detect the encoding of a `BLOB` of text bytes and decode it to a UTF-8 string. Undecodable bytes within the detected encoding become the U+FFFD replacement character rather than an error. Returns NULL for empty or NULL input. Use to_utf8_from when you already know the source encoding.",
+        "vgi.doc_md": "## to_utf8\n\nAuto-detects the encoding of a `BLOB` of text bytes and decodes it to a UTF-8 string in one step.\n\n**How it works:** runs the same detection as `detect_encoding` (BOM, then `chardetng`) and decodes with `encoding_rs`. Bytes that are undecodable in the detected encoding become the `U+FFFD` replacement character rather than raising an error.\n\n**Returns:** a `VARCHAR`; `NULL` for empty or `NULL` input.\n\n**When to use:** the convenient default for unlabelled data. Use `to_utf8_from` instead when you already know the source codec and want to skip detection.\n\n```sql\nSELECT charset.main.to_utf8('\\x63\\x61\\x66\\xE9'::BLOB); -- 'caf\u00e9'\n```",
+        "vgi.example_queries": "[{\"description\":\"Auto-detect and decode windows-1252 bytes to the UTF-8 string \\\"caf\u00e9\\\".\",\"sql\":\"SELECT charset.main.to_utf8('\\\\x63\\\\x61\\\\x66\\\\xE9'::BLOB);\"}]",
+        "vgi.keywords": "[\"to utf8\",\"decode\",\"convert to utf-8\",\"auto decode\",\"bytes to text\",\"normalize encoding\",\"clean text\",\"detected encoding\"]",
+        "vgi.title": "Decode Bytes to UTF-8"
+      },
+      "VARCHAR",
+      [
+        "bytes"
+      ],
+      [
+        "BLOB"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22600,
+      [],
+      "CONSISTENT",
+      []
+    ]
+  ]
+}

@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "catalogs": {
+    "released": {
+      "path": "coverage/catalog-released.json",
+      "sha256": "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055",
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_ortools",
+        "reviewed_at": "2026-11-14T19:06:22.942218+00:00",
+        "catalog_sha256": "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055",
+        "notes": "Reviewed complete actual catalog union: 7 scalar functions, supported_encodings table plus same-named table-function alias, 0 views. Eight logical objects; no hidden/authenticated/write APIs omitted. The interfaces have identical 8 logical names and signatures. Current source changes the transcode implementation for UTF-16LE/BE output and rejects replacement encoding; those paths are outside the three selected export codecs. A real SQL probe returns 68C3A9 for transcode(hé,UTF-16LE) on release and 6800E900 on current source. Metadata/examples and tests also changed; other demonstrated decoding, detection, repair and legacy/UTF-8 export logic is unchanged. Interface coverage does not claim implementation equivalence or exhaustive codec tests."
+      }
+    },
+    "current": {
+      "path": "coverage/catalog-current.json",
+      "sha256": "81660494356afceacfdf27a286e1d8d72b8febc40ed9b815d4c05e617dc98c47",
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_ortools",
+        "reviewed_at": "2026-11-14T19:06:22.942218+00:00",
+        "catalog_sha256": "81660494356afceacfdf27a286e1d8d72b8febc40ed9b815d4c05e617dc98c47",
+        "notes": "Reviewed complete actual catalog union: 7 scalar functions, supported_encodings table plus same-named table-function alias, 0 views. Eight logical objects; no hidden/authenticated/write APIs omitted. The interfaces have identical 8 logical names and signatures. Current source changes the transcode implementation for UTF-16LE/BE output and rejects replacement encoding; those paths are outside the three selected export codecs. A real SQL probe returns 68C3A9 for transcode(hé,UTF-16LE) on release and 6800E900 on current source. Metadata/examples and tests also changed; other demonstrated decoding, detection, repair and legacy/UTF-8 export logic is unchanged. Interface coverage does not claim implementation equivalence or exhaustive codec tests."
+      }
+    }
+  },
+  "notebooks": [
+    {
+      "path": "01_clean_bytes_wrong_words.ipynb",
+      "sha256": "7da2e0021bc6a723769a1ddf2459d22213e12a18c997361bbcb17e79c40acb19",
+      "execution": {
+        "path": "coverage/run-01.json",
+        "sha256": "133fcc6b07dd01b3570d1929608f2efe1086daf258e5f060414463a5c9c45907"
+      }
+    }
+  ],
+  "examples": [
+    {
+      "object": {
+        "schema": "main",
+        "name": "supported_encodings"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "sql": [
+        {
+          "cell": "charset-06",
+          "reference": "charset.main.supported_encodings"
+        }
+      ],
+      "narrative_cells": [
+        "charset-05"
+      ],
+      "result_cells": [
+        "charset-06",
+        "charset-codec-choice"
+      ],
+      "interpretation_cells": [
+        "charset-codec-choice"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_ortools",
+        "reviewed_at": "2026-11-14T19:06:22.942218+00:00",
+        "notebook_sha256": "7da2e0021bc6a723769a1ddf2459d22213e12a18c997361bbcb17e79c40acb19",
+        "catalog_sha256": [
+          "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055",
+          "81660494356afceacfdf27a286e1d8d72b8febc40ed9b815d4c05e617dc98c47"
+        ],
+        "purpose": "Establish a supported comparison population before exporting text.",
+        "finding": "The actual catalog lists 40 encoding labels. Three selected labels drive the export cross join and explicit preflight. Recognized labels do not prove every release encoder works; UTF-16 export is excluded with a documented release/current discrepancy."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "detect_encoding"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "sql": [
+        {
+          "cell": "charset-08",
+          "reference": "charset.main.detect_encoding"
+        }
+      ],
+      "narrative_cells": [
+        "charset-07"
+      ],
+      "result_cells": [
+        "charset-09"
+      ],
+      "interpretation_cells": [
+        "charset-09"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_ortools",
+        "reviewed_at": "2026-11-14T19:06:22.942218+00:00",
+        "notebook_sha256": "7da2e0021bc6a723769a1ddf2459d22213e12a18c997361bbcb17e79c40acb19",
+        "catalog_sha256": [
+          "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055",
+          "81660494356afceacfdf27a286e1d8d72b8febc40ed9b815d4c05e617dc98c47"
+        ],
+        "purpose": "Compare guesses against independently specified source encodings and intended text.",
+        "finding": "The detector-derived decoded text matches 3/4 known fixtures; the short Japanese sample is misidentified. This small constructed set is not a population accuracy estimate."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "detect_confidence"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "sql": [
+        {
+          "cell": "charset-08",
+          "reference": "charset.main.detect_confidence"
+        }
+      ],
+      "narrative_cells": [
+        "charset-07"
+      ],
+      "result_cells": [
+        "charset-09",
+        "charset-boundary-result"
+      ],
+      "interpretation_cells": [
+        "charset-09"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_ortools",
+        "reviewed_at": "2026-11-14T19:06:22.942218+00:00",
+        "notebook_sha256": "7da2e0021bc6a723769a1ddf2459d22213e12a18c997361bbcb17e79c40acb19",
+        "catalog_sha256": [
+          "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055",
+          "81660494356afceacfdf27a286e1d8d72b8febc40ed9b815d4c05e617dc98c47"
+        ],
+        "purpose": "Determine whether a clean decode score establishes correct interpretation.",
+        "finding": "The mismatched Japanese guess still has a proxy of 1.0. This score measures decode cleanliness, not calibrated confidence in original intent; empty and missing input have NULL detection evidence."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "is_valid_utf8"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "sql": [
+        {
+          "cell": "charset-08",
+          "reference": "charset.main.is_valid_utf8"
+        }
+      ],
+      "narrative_cells": [
+        "charset-07"
+      ],
+      "result_cells": [
+        "charset-09",
+        "charset-boundary-result"
+      ],
+      "interpretation_cells": [
+        "charset-boundary-result"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_ortools",
+        "reviewed_at": "2026-11-14T19:06:22.942218+00:00",
+        "notebook_sha256": "7da2e0021bc6a723769a1ddf2459d22213e12a18c997361bbcb17e79c40acb19",
+        "catalog_sha256": [
+          "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055",
+          "81660494356afceacfdf27a286e1d8d72b8febc40ed9b815d4c05e617dc98c47"
+        ],
+        "purpose": "Separate byte validity from successful text recovery and missing evidence.",
+        "finding": "Only 1/4 source payloads are valid UTF-8, though all four decode using their declared labels. Empty bytes are valid UTF-8 without detection evidence; missing bytes return NULL; FF is invalid and explicit UTF-8 decoding emits U+FFFD."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "to_utf8"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "sql": [
+        {
+          "cell": "charset-08",
+          "reference": "charset.main.to_utf8"
+        }
+      ],
+      "narrative_cells": [
+        "charset-07"
+      ],
+      "result_cells": [
+        "charset-09"
+      ],
+      "interpretation_cells": [
+        "charset-09"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_ortools",
+        "reviewed_at": "2026-11-14T19:06:22.942218+00:00",
+        "notebook_sha256": "7da2e0021bc6a723769a1ddf2459d22213e12a18c997361bbcb17e79c40acb19",
+        "catalog_sha256": [
+          "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055",
+          "81660494356afceacfdf27a286e1d8d72b8febc40ed9b815d4c05e617dc98c47"
+        ],
+        "purpose": "Evaluate automatic decoding without allowing the detector to define its own ground truth.",
+        "finding": "Automatic decoded text disagrees with independently supplied Japanese text despite a cleanliness proxy of 1.0. Explicit provenance and expected text distinguish clean output from correct interpretation."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "to_utf8_from"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "sql": [
+        {
+          "cell": "charset-08",
+          "reference": "charset.main.to_utf8_from"
+        }
+      ],
+      "narrative_cells": [
+        "charset-07"
+      ],
+      "result_cells": [
+        "charset-09",
+        "charset-23"
+      ],
+      "interpretation_cells": [
+        "charset-23"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_ortools",
+        "reviewed_at": "2026-11-14T19:06:22.942218+00:00",
+        "notebook_sha256": "7da2e0021bc6a723769a1ddf2459d22213e12a18c997361bbcb17e79c40acb19",
+        "catalog_sha256": [
+          "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055",
+          "81660494356afceacfdf27a286e1d8d72b8febc40ed9b815d4c05e617dc98c47"
+        ],
+        "purpose": "Recover known fixture text using independent source labels and verify exported bytes with their declared destinations.",
+        "finding": "Declared source decoding recovers every fixture, including UTF-16LE BOM stripping. Eight relationship checks pass; explicit labels alone still do not guarantee byte validity, as the lossy UTF-8 control demonstrates."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "fix_mojibake"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "sql": [
+        {
+          "cell": "charset-13",
+          "reference": "charset.main.fix_mojibake"
+        }
+      ],
+      "narrative_cells": [
+        "charset-12"
+      ],
+      "result_cells": [
+        "charset-14"
+      ],
+      "interpretation_cells": [
+        "charset-14"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_ortools",
+        "reviewed_at": "2026-11-14T19:06:22.942218+00:00",
+        "notebook_sha256": "7da2e0021bc6a723769a1ddf2459d22213e12a18c997361bbcb17e79c40acb19",
+        "catalog_sha256": [
+          "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055",
+          "81660494356afceacfdf27a286e1d8d72b8febc40ed9b815d4c05e617dc98c47"
+        ],
+        "purpose": "Assess a repair proposal against both known corruption and intentional literal characters.",
+        "finding": "The heuristic changes 2/3 examples and 1/3 proposals disagrees with stated intent. The intentional literal sequence shows why repair is reviewable, not an automatic normalization rule."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "transcode"
+      },
+      "notebook": "01_clean_bytes_wrong_words.ipynb",
+      "sql": [
+        {
+          "cell": "charset-16",
+          "reference": "charset.main.transcode"
+        }
+      ],
+      "narrative_cells": [
+        "charset-15"
+      ],
+      "result_cells": [
+        "charset-17",
+        "charset-19",
+        "charset-20"
+      ],
+      "interpretation_cells": [
+        "charset-17"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_ortools",
+        "reviewed_at": "2026-11-14T19:06:22.942218+00:00",
+        "notebook_sha256": "7da2e0021bc6a723769a1ddf2459d22213e12a18c997361bbcb17e79c40acb19",
+        "catalog_sha256": [
+          "2d0323fe6a9ec0e7c4ce845c37039a4d5f18501035149533398c66f5c74f3055",
+          "81660494356afceacfdf27a286e1d8d72b8febc40ed9b815d4c05e617dc98c47"
+        ],
+        "purpose": "Choose an export encoding based on exact text preservation before comparing byte counts.",
+        "finding": "Windows-1252 preserves 2/4 strings and totals 42 bytes; changing only destination to UTF-8 preserves 4/4 and totals 23 bytes. Accent bytes grow 4→5 while Japanese shrinks 24→9. Legacy numeric references remain literal text. The exercised three codecs are unchanged in current source; UTF-16/replacement fixes are separate documented behavior drift."
+      }
+    }
+  ]
+}

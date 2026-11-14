@@ -1,0 +1,28 @@
+{
+  "released": {
+    "query": "SELECT hex(charset.main.transcode('h\u00e9','UTF-16LE')) AS actual_hex, '6800E900' AS expected_utf16le_hex",
+    "columns": [
+      "actual_hex",
+      "expected_utf16le_hex"
+    ],
+    "rows": [
+      [
+        "68C3A9",
+        "6800E900"
+      ]
+    ]
+  },
+  "current": {
+    "query": "SELECT hex(charset.main.transcode('h\u00e9','UTF-16LE')) AS actual_hex, '6800E900' AS expected_utf16le_hex",
+    "columns": [
+      "actual_hex",
+      "expected_utf16le_hex"
+    ],
+    "rows": [
+      [
+        "6800E900",
+        "6800E900"
+      ]
+    ]
+  }
+}
